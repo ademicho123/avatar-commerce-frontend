@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Influencer - AvatarCommerce</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9fb;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header styles */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #5e60ce;
+        }
+        
+        .logo span {
+            color: #64dfdf;
+        }
+        
+        .logo a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: #5e60ce;
+        }
+        
+        .nav-link.active {
+            color: #5e60ce;
+            font-weight: 600;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background-color: #5e60ce;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: #4d4eb9;
+        }
+        
+        .btn:disabled {
+            background-color: #a5a6e0;
+            cursor: not-allowed;
+        }
+        
+        .btn i {
+            margin-right: 6px;
+        }
+        
+        .btn-secondary {
+            background-color: #f1f1fe;
+            color: #5e60ce;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e5e5fb;
+        }
+        
+        /* Chat page styles */
+        .chat-container {
+            display: flex;
+            padding: 30px 0;
+            flex: 1;
+        }
+        
+        .user-info-sidebar {
+            width: 300px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-right: 30px;
+        }
+        
+        .influencer-profile {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        
+        .profile-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #5e60ce;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .profile-bio {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+        
+        .chat-settings {
+            margin-top: 30px;
+        }
+        
+        .settings-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .setting-option {
+            margin-bottom: 20px;
+        }
+        
+        .setting-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-left: 10px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #5e60ce;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .setting-description {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        /* Chat interface */
+        .chat-interface {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .chat-status {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .chat-status.online {
+            color: #10b981;
+        }
+        
+        .chat-status.online:before {
+            content: "•";
+            margin-right: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        
+        .message-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .message-content {
+            max-width: 70%;
+        }
+        
+        .message-bubble {
+            background-color: #f1f1fe;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .message-info {
+            font-size: 0.75rem;
+            color: #666;
+            margin-left: 5px;
+        }
+        
+        .message.outgoing {
+            flex-direction: row-reverse;
+        }
+        
+        .message.outgoing .message-content {
+            align-items: flex-end;
+        }
+        
+        .message.outgoing .message-bubble {
+            background-color: #5e60ce;
+            color: white;
+        }
+        
+        .message.outgoing .message-info {
+            text-align: right;
+            margin-right: 5px;
+            margin-left: 0;
+        }
+        
+        .avatar-response {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .avatar-video {
+            width: 320px;
+            height: 180px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .product-recommendations {
+            margin-top: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .product-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 0.95rem;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .product-item {
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            width: calc(50% - 5px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .product-name {
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+        
+        .product-price {
+            font-size: 0.85rem;
+            color: #16a34a;
+            margin-bottom: 8px;
+        }
+        
+        .product-link {
+            background-color: #f1f1fe;
+            color: #5e60ce;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            margin-top: auto;
+        }
+        
+        .product-link:hover {
+            background-color: #e5e5fb;
+        }
+        
+        .chat-input-container {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            resize: none;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #5e60ce;
+        }
+        
+        .input-actions {
+            display: flex;
+            margin-left: 10px;
+        }
+        
+        .voice-input-btn {
+            background-color: #f1f1fe;
+            color: #5e60ce;
+            border: none;
+            border-radius: 4px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .voice-input-btn:hover {
+            background-color: #e5e5fb;
+        }
+        
+        .voice-input-btn.recording {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Loading states */
+        .typing-indicator {
+            display: none;
+            padding: 10px 15px;
+            background-color: #f1f1fe;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            color: #333;
+            width: fit-content;
+            margin-bottom: 20px;
+        }
+        
+        .typing-dots {
+            display: inline-flex;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #666;
+            margin: 0 2px;
+            animation: typingAnimation 1.5s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typingAnimation {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+        
+        /* Login prompt */
+        .login-prompt {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .prompt-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .prompt-text {
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 30px 0;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .footer-logo span {
+            color: #64dfdf;
+        }
+        
+        .footer-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: #fff;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .chat-container {
+                flex-direction: column;
+            }
+            
+            .user-info-sidebar {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .influencer-profile {
+                display: flex;
+                align-items: center;
+                text-align: left;
+                padding-bottom: 15px;
+            }
+            
+            .profile-image,
+            .profile-placeholder {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 0;
+                margin-right: 15px;
+            }
+            
+            .chat-settings {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+            
+            .setting-option {
+                width: calc(50% - 10px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .nav-links {
+                margin: 10px 0;
+            }
+            
+            .auth-buttons {
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            
+            .setting-option {
+                width: 100%;
+            }
+            
+            .product-item {
+                width: 100%;
+            }
+            
+            .avatar-video {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="../../index.html">Avatar<span>Commerce</span></a>
+                </div>
+                
+                <ul class="nav-links">
+                    <li><a href="../../index.html#features" class="nav-link">Features</a></li>
+                    <li><a href="../../index.html#how-it-works" class="nav-link">How It Works</a></li>
+                    <li><a href="#" class="nav-link active">Chat</a></li>
+                </ul>
+                
+                <div class="auth-buttons" id="auth-buttons">
+                    <a href="../auth/login.html" class="btn btn-secondary">Login</a>
+                    <a href="../auth/register.html" class="btn">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Chat Container -->
+    <div class="container">
+        <div class="chat-container">
+            <!-- User Info Sidebar -->
+            <div class="user-info-sidebar">
+                <div class="influencer-profile">
+                    <div id="profile-placeholder" class="profile-placeholder">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <img id="profile-image" class="profile-image" src="" alt="Influencer Avatar" style="display: none;">
+                    
+                    <div>
+                        <h2 id="profile-name" class="profile-name">Influencer</h2>
+                        <p id="profile-bio" class="profile-bio">Loading bio...</p>
+                    </div>
+                </div>
+                
+                <div class="chat-settings">
+                    <h3 class="settings-title">Chat Settings</h3>
+                    
+                    <div class="setting-option">
+                        <div class="setting-label">
+                            Voice Mode
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="voice-mode-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <p class="setting-description">Enable voice responses from the avatar</p>
+                    </div>
+                    
+                    <div class="setting-option">
+                        <div class="setting-label">
+                            Voice Input
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="voice-input-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <p class="setting-description">Enable microphone for voice messages</p>
+                    </div>
+                </div>
+                
+                <div id="login-prompt" class="login-prompt">
+                    <h3 class="prompt-title">Create an Account</h3>
+                    <p class="prompt-text">Sign up to save your chat history and preferences</p>
+                    <a href="../auth/register.html" class="btn">Sign Up Free</a>
+                </div>
+            </div>
+            
+            <!-- Chat Interface -->
+            <div class="chat-interface">
+                <div class="chat-header">
+                    <div id="chat-title" class="chat-title">Chat with Influencer</div>
+                    <div class="chat-status online">AI Avatar Online</div>
+                </div>
+                
+                <div id="chat-messages" class="chat-messages">
+                    <!-- Welcome message -->
+                    <div class="message">
+                        <div class="message-placeholder">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                👋 Hi there! I'm loading... Please wait a moment while I get ready to chat with you.
+                            </div>
+                            <div class="message-info">Just now</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Typing indicator -->
+                    <div id="typing-indicator" class="typing-indicator">
+                        <div class="typing-dots">
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <textarea id="chat-input" class="chat-input" placeholder="Type your message..." rows="1"></textarea>
+                    <div class="input-actions">
+                        <button id="voice-input-btn" class="voice-input-btn">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button id="send-btn" class="btn send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Avatar<span>Commerce</span></div>
+                
+                <ul class="footer-links">
+                    <li><a href="../../index.html" class="footer-link">Home</a></li>
+                    <li><a href="../../index.html#features" class="footer-link">Features</a></li>
+                    <li><a href="#" class="footer-link">Terms</a></li>
+                    <li><a href="#" class="footer-link">Privacy</a></li>
+                </ul>
+                
+                <div class="copyright">&copy; 2025 AvatarCommerce. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // API base URL
+            const API_BASE_URL = 'http://localhost:5000/api';
+            
+            // DOM elements
+            const profilePlaceholder = document.getElementById('profile-placeholder');
+            const profileImage = document.getElementById('profile-image');
+            const profileName = document.getElementById('profile-name');
+            const profileBio = document.getElementById('profile-bio');
+            const chatTitle = document.getElementById('chat-title');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            const voiceInputBtn = document.getElementById('voice-input-btn');
+            const voiceModeToggle = document.getElementById('voice-mode-toggle');
+            const voiceInputToggle = document.getElementById('voice-input-toggle');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const loginPrompt = document.getElementById('login-prompt');
+            const authButtons = document.getElementById('auth-buttons');
+            
+            // User and chat data
+            let influencerId = null;
+            let influencerUsername = null;
+            let fanId = null;
+            let voiceId = null;
+            let hasVoice = false;
+            
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const usernameParam = urlParams.get('username');
+            const demoMode = urlParams.get('demo') === 'true';
+            
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            
+            if (token && userStr) {
+                const user = JSON.parse(userStr);
+                
+                // Update auth display
+                updateAuthDisplay(user);
+                
+                // If user is a fan, set fanId
+                if (user.userType === 'fan') {
+                    fanId = user.id;
+                    loginPrompt.style.display = 'none';
+                }
+            }
+            
+            // Initialize chat with username from URL or demo mode
+            if (usernameParam) {
+                initializeChat(usernameParam);
+            } else if (demoMode) {
+                // Demo mode with a sample influencer
+                initializeChat('demo');
+            } else {
+                // No username provided
+                showError('No influencer username provided. Please select an influencer to chat with.');
+            }
+            
+            // Chat input auto-resize
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // Send message on button click
+            sendBtn.addEventListener('click', sendMessage);
+            
+            // Send message on Enter key (but allow Shift+Enter for new line)
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Voice input button click
+            voiceInputBtn.addEventListener('click', toggleVoiceInput);
+            
+            // Voice mode toggle
+            voiceModeToggle.addEventListener('change', function() {
+                if (this.checked && !hasVoice) {
+                    addSystemMessage('Voice mode is not available for this influencer.');
+                    this.checked = false;
+                }
+            });
+            
+            // Voice input toggle
+            voiceInputToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    // Request microphone permission
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(function(stream) {
+                            // Permission granted
+                            stream.getTracks().forEach(track => track.stop());
+                            voiceInputBtn.disabled = false;
+                        })
+                        .catch(function(err) {
+                            // Permission denied
+                            console.error('Microphone permission denied:', err);
+                            addSystemMessage('Microphone access was denied. Please enable it in your browser settings.');
+                            voiceInputToggle.checked = false;
+                            voiceInputBtn.disabled = true;
+                        });
+                } else {
+                    voiceInputBtn.disabled = true;
+                    voiceInputBtn.classList.remove('recording');
+                    
+                    // Stop recording if active
+                    if (window.mediaRecorder && window.mediaRecorder.state === 'recording') {
+                        window.mediaRecorder.stop();
+                    }
+                }
+            });
+            
+            // Initialize chat with influencer
+            async function initializeChat(username) {
+                try {
+                    // Get influencer info
+                    const response = await fetch(`${API_BASE_URL}/chat/${username}`);
+                    
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            showError(`Influencer '${username}' not found or hasn't set up their avatar yet.`);
+                        } else {
+                            showError('Failed to load influencer data. Please try again later.');
+                        }
+                        return;
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        // Store influencer data
+                        influencerId = data.data.influencer_id;
+                        influencerUsername = data.data.username;
+                        hasVoice = data.data.has_voice;
+                        voiceId = data.data.voice_id;
+                        
+                        // Update profile display
+                        updateProfileDisplay(data.data);
+                        
+                        // Show welcome message
+                        clearMessages();
+                        addWelcomeMessage(data.data.bio_snippet);
+                        
+                        // Enable/disable voice features
+                        if (!hasVoice) {
+                            voiceModeToggle.disabled = true;
+                            document.querySelector('.setting-option:first-child .setting-description').textContent = 
+                                'This influencer has not set up voice responses';
+                        }
+                    } else {
+                        showError(data.message || 'Failed to load influencer data.');
+                    }
+                } catch (error) {
+                    console.error('Error initializing chat:', error);
+                    showError('An error occurred while loading the chat. Please try again later.');
+                }
+            }
+            
+            // Update profile display
+            function updateProfileDisplay(data) {
+                // Set profile image
+                if (data.avatar_preview_url) {
+                    profileImage.src = data.avatar_preview_url;
+                    profileImage.style.display = 'block';
+                    profilePlaceholder.style.display = 'none';
+                } else {
+                    profilePlaceholder.style.display = 'flex';
+                    profileImage.style.display = 'none';
+                    
+                    // Set initial for placeholder
+                    const initial = data.username.charAt(0).toUpperCase();
+                    profilePlaceholder.innerHTML = initial;
+                }
+                
+                // Set name and bio
+                profileName.textContent = data.username;
+                profileBio.textContent = data.bio_snippet || 'No bio available';
+                
+                // Update chat title
+                chatTitle.textContent = `Chat with ${data.username}`;
+            }
+            
+            // Update auth display
+            function updateAuthDisplay(user) {
+                // Update auth buttons
+                let authContent = '';
+                
+                if (user.userType === 'fan') {
+                    authContent = `
+                        <span style="margin-right: 10px; font-weight: 500;">Hi, ${user.username}!</span>
+                        <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                    `;
+                } else if (user.userType === 'influencer') {
+                    authContent = `
+                        <a href="../influencer/dashboard.html" class="btn btn-secondary">Dashboard</a>
+                        <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                    `;
+                }
+                
+                authButtons.innerHTML = authContent;
+                
+                // Add logout handler
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function() {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.reload();
+                    });
+                }
+            }
+            
+            // Clear messages
+            function clearMessages() {
+                while (chatMessages.firstChild) {
+                    chatMessages.removeChild(chatMessages.firstChild);
+                }
+            }
+            
+            // Add welcome message
+            function addWelcomeMessage(bioSnippet) {
+                const welcomeDiv = document.createElement('div');
+                welcomeDiv.className = 'message';
+                
+                welcomeDiv.innerHTML = `
+                    <div class="message-placeholder">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            👋 Hi there! I'm ${influencerUsername}'s AI avatar. ${bioSnippet ? 'A bit about me: ' + bioSnippet : ''} What would you like to chat about today?
+                        </div>
+                        <div class="message-info">Just now</div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(welcomeDiv);
+                scrollToBottom();
+            }
+            
+            // Add user message
+            function addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message outgoing';
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            ${escapeHtml(message)}
+                        </div>
+                        <div class="message-info">Just now</div>
+                    </div>
+                    <div class="message-placeholder">
+                        <i class="fas fa-user"></i>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            // Add avatar response
+            function addAvatarResponse(response) {
+                const responseDiv = document.createElement('div');
+                responseDiv.className = 'message';
+                
+                // Check if response has video
+                const hasVideo = response.video_url && response.video_url.trim() !== '';
+                
+                // Check if response has audio
+                const hasAudio = response.audio_url && response.audio_url.trim() !== '';
+                
+                // Check if response has product recommendations
+                const hasProductRecs = response.has_product_recommendations;
+                
+                // Split response text if it has product recommendations
+                let chatResponse = response.text;
+                let productRecommendations = '';
+                
+                if (hasProductRecs) {
+                    // Find the product recommendations section
+                    const recIndex = response.text.indexOf('### Recommended Products');
+                    if (recIndex !== -1) {
+                        chatResponse = response.text.substring(0, recIndex).trim();
+                        productRecommendations = response.text.substring(recIndex);
+                    }
+                }
+                
+                // Create message HTML
+                let messageHTML = `
+                    <div class="message-placeholder">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                `;
+                
+                // Add video if available
+                if (hasVideo) {
+                    messageHTML += `
+                        <div class="avatar-response">
+                            <video class="avatar-video" controls${hasAudio ? ' muted' : ''}>
+                                <source src="${response.video_url}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    `;
+                }
+                
+                // Add audio if available and voice mode is enabled
+                if (hasAudio && voiceModeToggle.checked) {
+                    messageHTML += `
+                        <audio autoplay>
+                            <source src="${response.audio_url}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    `;
+                }
+                
+                // Add message bubble
+                messageHTML += `
+                    <div class="message-bubble">
+                        ${formatMessageText(chatResponse)}
+                    </div>
+                    <div class="message-info">Just now</div>
+                `;
+                
+                // Add product recommendations if available
+                if (hasProductRecs && productRecommendations) {
+                    messageHTML += `
+                        <div class="product-recommendations">
+                            ${formatProductRecommendations(productRecommendations)}
+                        </div>
+                    `;
+                }
+                
+                messageHTML += `</div>`;
+                
+                responseDiv.innerHTML = messageHTML;
+                chatMessages.appendChild(responseDiv);
+                scrollToBottom();
+            }
+            
+            // Add system message
+            function addSystemMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                
+                messageDiv.innerHTML = `
+                    <div style="margin: 0 auto; font-style: italic; color: #666; font-size: 0.9rem; text-align: center; margin-bottom: 15px;">
+                        ${message}
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            // Show error message
+            function showError(message) {
+                clearMessages();
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.style.padding = '20px';
+                errorDiv.style.textAlign = 'center';
+                errorDiv.style.color = '#b91c1c';
+                
+                errorDiv.innerHTML = `
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3 style="margin-bottom: 10px; font-size: 1.2rem;">Error</h3>
+                    <p>${message}</p>
+                `;
+                
+                chatMessages.appendChild(errorDiv);
+            }
+            
+            // Send message
+            async function sendMessage() {
+                const message = chatInput.value.trim();
+                
+                if (!message) return;
+                
+                // Check if influencer is loaded
+                if (!influencerId) {
+                    addSystemMessage('Please wait until the chat is fully loaded.');
+                    return;
+                }
+                
+                // Add user message to chat
+                addUserMessage(message);
+                
+                // Clear input
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                
+                // Show typing indicator
+                typingIndicator.style.display = 'block';
+                scrollToBottom();
+                
+                try {
+                    // Prepare request data
+                    const requestData = {
+                        message: message,
+                        influencer_id: influencerId,
+                        voice_mode: voiceModeToggle.checked
+                    };
+                    
+                    // Add fan ID if logged in
+                    if (fanId) {
+                        requestData.fan_id = fanId;
+                    }
+                    
+                    // Send request
+                    const response = await fetch(`${API_BASE_URL}/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token ? `Bearer ${token}` : undefined
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+                    
+                    // Hide typing indicator
+                    typingIndicator.style.display = 'none';
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to send message. Please try again.');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        // Add response to chat
+                        addAvatarResponse(data.data);
+                    } else {
+                        addSystemMessage('Failed to get response. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    typingIndicator.style.display = 'none';
+                    addSystemMessage('An error occurred. Please try again later.');
+                }
+            }
+            
+            // Toggle voice input
+            function toggleVoiceInput() {
+                // Check if voice input is enabled
+                if (!voiceInputToggle.checked) {
+                    voiceInputToggle.checked = true;
+                    
+                    // Request microphone permission
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(function(stream) {
+                            // Permission granted
+                            stream.getTracks().forEach(track => track.stop());
+                            startVoiceRecording();
+                        })
+                        .catch(function(err) {
+                            // Permission denied
+                            console.error('Microphone permission denied:', err);
+                            addSystemMessage('Microphone access was denied. Please enable it in your browser settings.');
+                            voiceInputToggle.checked = false;
+                        });
+                } else {
+                    // Toggle recording state
+                    if (voiceInputBtn.classList.contains('recording')) {
+                        stopVoiceRecording();
+                    } else {
+                        startVoiceRecording();
+                    }
+                }
+            }
+            
+            // Start voice recording
+            function startVoiceRecording() {
+                // Add recording class
+                voiceInputBtn.classList.add('recording');
+                
+                // Show recording message
+                addSystemMessage('Recording... Click the microphone again to stop.');
+                
+                // Request microphone access
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(function(stream) {
+                        // Create media recorder
+                        const mediaRecorder = new MediaRecorder(stream);
+                        window.mediaRecorder = mediaRecorder;
+                        
+                        // Audio chunks
+                        const audioChunks = [];
+                        
+                        // Record data
+                        mediaRecorder.addEventListener('dataavailable', function(e) {
+                            audioChunks.push(e.data);
+                        });
+                        
+                        // Recording stopped
+                        mediaRecorder.addEventListener('stop', function() {
+                            // Stop all tracks
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            // Create audio blob
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                            
+                            // Convert speech to text
+                            convertSpeechToText(audioBlob);
+                        });
+                        
+                        // Start recording
+                        mediaRecorder.start();
+                        
+                        // Automatically stop after 30 seconds
+                        setTimeout(function() {
+                            if (mediaRecorder.state === 'recording') {
+                                stopVoiceRecording();
+                            }
+                        }, 30000);
+                    })
+                    .catch(function(err) {
+                        console.error('Error accessing microphone:', err);
+                        addSystemMessage('Could not access microphone. Please try again.');
+                        voiceInputBtn.classList.remove('recording');
+                    });
+            }
+            
+            // Stop voice recording
+            function stopVoiceRecording() {
+                // Remove recording class
+                voiceInputBtn.classList.remove('recording');
+                
+                // Stop recording
+                if (window.mediaRecorder && window.mediaRecorder.state === 'recording') {
+                    window.mediaRecorder.stop();
+                    addSystemMessage('Processing voice message...');
+                }
+            }
+            
+            // Convert speech to text
+            async function convertSpeechToText(audioBlob) {
+                try {
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('audio', audioBlob);
+                    
+                    // Send request
+                    const response = await fetch(`${API_BASE_URL}/voice/speech-to-text`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to convert speech to text.');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success' && data.data.text) {
+                        // Set input text
+                        chatInput.value = data.data.text;
+                        
+                        // Send message
+                        sendMessage();
+                    } else {
+                        addSystemMessage('Could not understand audio. Please try again or type your message.');
+                    }
+                } catch (error) {
+                    console.error('Error converting speech to text:', error);
+                    addSystemMessage('Could not process voice message. Please try again or type your message.');
+                }
+            }
+            
+            // Format message text (handle line breaks, links, etc.)
+            function formatMessageText(text) {
+                if (!text) return '';
+                
+                // Replace newlines with <br>
+                let formatted = text.replace(/\n/g, '<br>');
+                
+                // Replace URLs with clickable links
+                formatted = formatted.replace(
+                    /(https?:\/\/[^\s]+)/g, 
+                    '<a href="$1" target="_blank" style="color: #5e60ce; text-decoration: underline;">$1</a>'
+                );
+                
+                return formatted;
+            }
+            
+            // Format product recommendations
+            function formatProductRecommendations(text) {
+                if (!text) return '';
+                
+                // Extract product sections using regex
+                const productTitle = '### Recommended Products';
+                let formatted = `<div class="product-title">${productTitle}</div><div class="product-list">`;
+                
+                // Pattern for product sections: 🛒 [title] - [price]\n📷 [Image]([url])\n🔗 [Buy Now]([url])
+                const productRegex = /🛒 (.*?) - (.*?)(?:\n📷 \[Image\]\((.*?)\))?(?:\n🔗 \[Buy Now\]\((.*?)\))?/g;
+                let match;
+                
+                let productCount = 0;
+                while ((match = productRegex.exec(text)) !== null && productCount < 4) {
+                    const title = match[1] || 'Product';
+                    const price = match[2] || '';
+                    const imageUrl = match[3] || '';
+                    const buyUrl = match[4] || '#';
+                    
+                    formatted += `
+                        <div class="product-item">
+                            <img src="${imageUrl || '../../assets/images/product-placeholder.jpg'}" alt="${title}" class="product-image">
+                            <div class="product-name">${title}</div>
+                            <div class="product-price">${price}</div>
+                            <a href="${buyUrl}" target="_blank" class="product-link">View Product</a>
+                        </div>
+                    `;
+                    
+                    productCount++;
+                }
+                
+                formatted += '</div>';
+                
+                return formatted;
+            }
+            
+            // Escape HTML
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+            
+            // Scroll to bottom of chat messages
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
