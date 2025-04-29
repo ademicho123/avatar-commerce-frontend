@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Profile - AvatarCommerce</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9fb;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header styles */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #5e60ce;
+        }
+        
+        .logo span {
+            color: #64dfdf;
+        }
+        
+        .logo a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: #5e60ce;
+        }
+        
+        .nav-link.active {
+            color: #5e60ce;
+            font-weight: 600;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .user-greeting {
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background-color: #5e60ce;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: #4d4eb9;
+        }
+        
+        .btn:disabled {
+            background-color: #a5a6e0;
+            cursor: not-allowed;
+        }
+        
+        .btn i {
+            margin-right: 6px;
+        }
+        
+        .btn-secondary {
+            background-color: #f1f1fe;
+            color: #5e60ce;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e5e5fb;
+        }
+        
+        .btn-danger {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+        
+        .btn-danger:hover {
+            background-color: #fecaca;
+            color: #b91c1c;
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding: 40px 0;
+        }
+        
+        .page-header {
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .page-subtitle {
+            color: #666;
+        }
+        
+        /* Profile container */
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        
+        /* Profile sidebar */
+        .profile-sidebar {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+        }
+        
+        .profile-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #5e60ce;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 15px;
+        }
+        
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .profile-email {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+        
+        .profile-stats {
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .stat-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+        }
+        
+        .sidebar-menu {
+            margin-top: 30px;
+        }
+        
+        .sidebar-menu-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: #444;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+        }
+        
+        .menu-link:hover {
+            background-color: #f1f1fe;
+            color: #5e60ce;
+        }
+        
+        .menu-link.active {
+            background-color: #f1f1fe;
+            color: #5e60ce;
+            font-weight: 500;
+        }
+        
+        .menu-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Profile content */
+        .profile-content {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .content-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #5e60ce;
+            box-shadow: 0 0 0 3px rgba(94, 96, 206, 0.1);
+        }
+        
+        .form-hint {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .form-error {
+            color: #e53e3e;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            display: none;
+        }
+        
+        /* Chat history */
+        .chat-history {
+            margin-top: 30px;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .history-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .influencer-filter {
+            display: flex;
+            align-items: center;
+        }
+        
+        .influencer-filter label {
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        
+        .influencer-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-width: 150px;
+        }
+        
+        .chat-list {
+            border-top: 1px solid #eee;
+        }
+        
+        .chat-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #f1f1fe;
+            color: #5e60ce;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .chat-details {
+            flex: 1;
+        }
+        
+        .chat-influencer {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .chat-preview {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .chat-date {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .chat-action {
+            margin-left: 10px;
+        }
+        
+        .empty-history {
+            padding: 30px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .empty-history i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .empty-message {
+            margin-bottom: 20px;
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #f87171;
+        }
+        
+        .alert-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        
+        /* Dialog */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            display: none;
+        }
+        
+        .dialog {
+            background-color: #fff;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+        
+        .dialog-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .dialog-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fee2e2;
+            color: #b91c1c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+        
+        .dialog-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .dialog-body {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .dialog-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 30px 0;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .footer-logo span {
+            color: #64dfdf;
+        }
+        
+        .footer-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: #fff;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-sidebar {
+                margin-bottom: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .nav-links {
+                margin: 10px 0;
+            }
+            
+            .auth-buttons {
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            
+            .history-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .influencer-filter {
+                margin-top: 10px;
+                width: 100%;
+            }
+            
+            .influencer-select {
+                flex: 1;
+            }
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="../../index.html">Avatar<span>Commerce</span></a>
+                </div>
+                
+                <ul class="nav-links">
+                    <li><a href="../../index.html#features" class="nav-link">Features</a></li>
+                    <li><a href="../../index.html#how-it-works" class="nav-link">How It Works</a></li>
+                    <li><a href="chat.html" class="nav-link">Chat</a></li>
+                    <li><a href="profile.html" class="nav-link active">Profile</a></li>
+                </ul>
+                
+                <div class="auth-buttons" id="auth-buttons">
+                    <span class="user-greeting">Hi, <span id="greeting-name">User</span>!</span>
+                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">My Profile</h1>
+                <p class="page-subtitle">Manage your account and view chat history</p>
+            </div>
+            
+            <div id="alert" class="alert"></div>
+            
+            <div class="profile-container">
+                <!-- Profile Sidebar -->
+                <div class="profile-sidebar">
+                    <div class="profile-info">
+                        <div id="profile-avatar" class="profile-avatar">JD</div>
+                        <h2 id="profile-name" class="profile-name">John Doe</h2>
+                        <p id="profile-email" class="profile-email">john.doe@example.com</p>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Chats</span>
+                            <span id="total-chats" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Influencers Followed</span>
+                            <span id="total-influencers" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Member Since</span>
+                            <span id="member-since" class="stat-value">Apr 2025</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-menu">
+                        <h3 class="sidebar-menu-title">Menu</h3>
+                        <a href="#profile-settings" class="menu-link active" data-section="profile-settings">
+                            <i class="fas fa-user"></i> Profile Settings
+                        </a>
+                        <a href="#chat-history" class="menu-link" data-section="chat-history">
+                            <i class="fas fa-history"></i> Chat History
+                        </a>
+                        <a href="#account-security" class="menu-link" data-section="account-security">
+                            <i class="fas fa-lock"></i> Security
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Profile Content -->
+                <div class="profile-content">
+                    <!-- Profile Settings Section -->
+                    <section id="profile-settings-section" class="content-section">
+                        <div class="content-header">
+                            <h2 class="content-title">Profile Settings</h2>
+                        </div>
+                        
+                        <form id="profile-form">
+                            <div class="form-group">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" id="username" class="form-input" disabled>
+                                <div class="form-hint">Your username cannot be changed.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" class="form-input" required>
+                                <div id="email-error" class="form-error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="preferences" class="form-label">Notification Preferences</label>
+                                <div style="margin-top: 10px;">
+                                    <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                                        <input type="checkbox" id="email-notifications" style="margin-right: 10px;">
+                                        Receive email notifications
+                                    </label>
+                                    <label style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="product-updates" style="margin-right: 10px;">
+                                        Receive product updates and offers
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </form>
+                    </section>
+                    
+                    <!-- Chat History Section -->
+                    <section id="chat-history-section" class="content-section" style="display: none;">
+                        <div class="content-header">
+                            <h2 class="content-title">Chat History</h2>
+                        </div>
+                        
+                        <div class="chat-history">
+                            <div class="history-header">
+                                <h3 class="history-title">Recent Conversations</h3>
+                                
+                                <div class="influencer-filter">
+                                    <label for="influencer-select">Filter by Influencer:</label>
+                                    <select id="influencer-select" class="influencer-select">
+                                        <option value="all">All Influencers</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div id="chat-list" class="chat-list">
+                                <div class="empty-history">
+                                    <i class="fas fa-comments"></i>
+                                    <p class="empty-message">No chat history yet</p>
+                                    <a href="chat.html" class="btn">Start Chatting</a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Security Section -->
+                    <section id="account-security-section" class="content-section" style="display: none;">
+                        <div class="content-header">
+                            <h2 class="content-title">Account Security</h2>
+                        </div>
+                        
+                        <form id="password-form">
+                            <div class="form-group">
+                                <label for="current-password" class="form-label">Current Password</label>
+                                <input type="password" id="current-password" class="form-input" required>
+                                <div id="current-password-error" class="form-error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="new-password" class="form-label">New Password</label>
+                                <input type="password" id="new-password" class="form-input" required>
+                                <div id="new-password-error" class="form-error"></div>
+                                <div class="form-hint">Password must be at least 6 characters long.</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                <input type="password" id="confirm-password" class="form-input" required>
+                                <div id="confirm-password-error" class="form-error"></div>
+                            </div>
+                            
+                            <button type="submit" class="btn">
+                                <i class="fas fa-lock"></i> Change Password
+                            </button>
+                        </form>
+                        
+                        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                        
+                        <div>
+                            <h3 style="margin-bottom: 15px; color: #b91c1c;">Danger Zone</h3>
+                            <p style="margin-bottom: 20px; color: #666;">Permanently delete your account and all of your data.</p>
+                            <button id="delete-account-btn" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete Account
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Account Confirmation Dialog -->
+    <div id="delete-dialog" class="dialog-overlay">
+        <div class="dialog">
+            <div class="dialog-header">
+                <div class="dialog-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="dialog-title">Delete Account</div>
+            </div>
+            <div class="dialog-body">
+                <p>Are you sure you want to delete your account? This action cannot be undone and will permanently delete all of your data, including:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Your profile information</li>
+                    <li>All chat history</li>
+                    <li>Saved preferences</li>
+                </ul>
+            </div>
+            <div class="dialog-footer">
+                <button id="cancel-delete" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-delete" class="btn btn-danger">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Avatar<span>Commerce</span></div>
+                
+                <ul class="footer-links">
+                    <li><a href="../../index.html" class="footer-link">Home</a></li>
+                    <li><a href="../../index.html#features" class="footer-link">Features</a></li>
+                    <li><a href="#" class="footer-link">Terms</a></li>
+                    <li><a href="#" class="footer-link">Privacy</a></li>
+                </ul>
+                
+                <div class="copyright">&copy; 2025 AvatarCommerce. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Load shared scripts -->
+    <script src="../../js/config.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/api-client.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enforce authentication
+            UTILS.auth.requireFan();
+            
+            // DOM elements
+            const menuLinks = document.querySelectorAll('.menu-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const profileForm = document.getElementById('profile-form');
+            const passwordForm = document.getElementById('password-form');
+            const deleteAccountBtn = document.getElementById('delete-account-btn');
+            const deleteDialog = document.getElementById('delete-dialog');
+            const cancelDeleteBtn = document.getElementById('cancel-delete');
+            const confirmDeleteBtn = document.getElementById('confirm-delete');
+            const greetingName = document.getElementById('greeting-name');
+            const profileAvatar = document.getElementById('profile-avatar');
+            const profileName = document.getElementById('profile-name');
+            const profileEmail = document.getElementById('profile-email');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const emailNotifications = document.getElementById('email-notifications');
+            const productUpdates = document.getElementById('product-updates');
+            const currentPasswordInput = document.getElementById('current-password');
+            const newPasswordInput = document.getElementById('new-password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const totalChats = document.getElementById('total-chats');
+            const totalInfluencers = document.getElementById('total-influencers');
+            const memberSince = document.getElementById('member-since');
+            const chatList = document.getElementById('chat-list');
+            const influencerSelect = document.getElementById('influencer-select');
+            const logoutBtn = document.getElementById('logout-btn');
+            const alert = document.getElementById('alert');
+            
+            // Current user data
+            let userData = null;
+            
+            // Initialize
+            loadUserData();
+            
+            // Event listeners
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get section ID
+                    const sectionId = this.getAttribute('data-section');
+                    
+                    // Update active link
+                    menuLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    contentSections.forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    document.getElementById(`${sectionId}-section`).style.display = 'block';
+                });
+            });
+            
+            profileForm.addEventListener('submit', updateProfile);
+            passwordForm.addEventListener('submit', changePassword);
+            
+            deleteAccountBtn.addEventListener('click', function() {
+                deleteDialog.style.display = 'flex';
+            });
+            
+            cancelDeleteBtn.addEventListener('click', function() {
+                deleteDialog.style.display = 'none';
+            });
+            
+            confirmDeleteBtn.addEventListener('click', deleteAccount);
+            
+            influencerSelect.addEventListener('change', filterChatHistory);
+            
+            logoutBtn.addEventListener('click', UTILS.auth.logout);
+            
+            // Load user data
+            async function loadUserData() {
+                try {
+                    // Get user from localStorage
+                    userData = UTILS.auth.getCurrentUser();
+                    
+                    if (userData) {
+                        // Update UI with user data
+                        greetingName.textContent = userData.username;
+                        profileName.textContent = userData.username;
+                        profileEmail.textContent = userData.email;
+                        usernameInput.value = userData.username;
+                        emailInput.value = userData.email;
+                        
+                        // Set avatar initials
+                        profileAvatar.textContent = UTILS.ui.getInitials(userData.username);
+                        
+                        // Set member since date (placeholder)
+                        const createdDate = new Date(userData.created_at || new Date());
+                        memberSince.textContent = createdDate.toLocaleDateString('en-US', {
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                        
+                        // Load chat history
+                        loadChatHistory();
+                    }
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                    UTILS.ui.showAlert('An error occurred while loading your profile.', 'danger', alert);
+                }
+            }
+            
+            // Load chat history
+            async function loadChatHistory() {
+                try {
+                    // Clear current options (except "All Influencers")
+                    while (influencerSelect.options.length > 1) {
+                        influencerSelect.remove(1);
+                    }
+                    
+                    // Set placeholder
+                    chatList.innerHTML = `
+                        <div style="padding: 20px; text-align: center;">
+                            <div class="spinner" style="margin: 0 auto 15px;"></div>
+                            <div>Loading chat history...</div>
+                        </div>
+                    `;
+                    
+                    // Get all influencers the user has chatted with
+                    const chatData = await fetchChatHistory();
+                    
+                    // Chat statistics
+                    totalChats.textContent = chatData.length;
+                    
+                    // Unique influencers
+                    const uniqueInfluencers = new Set();
+                    const influencerData = {};
+                    
+                    chatData.forEach(chat => {
+                        if (chat.influencer_id) {
+                            uniqueInfluencers.add(chat.influencer_id);
+                            
+                            // Store influencer data
+                            if (!influencerData[chat.influencer_id]) {
+                                influencerData[chat.influencer_id] = {
+                                    id: chat.influencer_id,
+                                    username: chat.influencer?.username || 'Unknown Influencer',
+                                    chats: []
+                                };
+                            }
+                            
+                            // Add chat to influencer
+                            influencerData[chat.influencer_id].chats.push(chat);
+                        }
+                    });
+                    
+                    totalInfluencers.textContent = uniqueInfluencers.size;
+                    
+                    // Add influencers to select
+                    Object.values(influencerData).forEach(influencer => {
+                        const option = document.createElement('option');
+                        option.value = influencer.id;
+                        option.textContent = influencer.username;
+                        influencerSelect.appendChild(option);
+                    });
+                    
+                    // Render chats
+                    renderChatHistory(chatData);
+                    
+                } catch (error) {
+                    console.error('Error loading chat history:', error);
+                    chatList.innerHTML = `
+                        <div class="empty-history">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p class="empty-message">Failed to load chat history</p>
+                            <button onclick="loadChatHistory()" class="btn btn-secondary">Try Again</button>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Fetch chat history data
+            async function fetchChatHistory() {
+                // Simulate API call (replace with actual API call)
+                // In a real implementation, you would fetch this from your backend
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve([
+                            {
+                                id: '1',
+                                influencer_id: 'inf1',
+                                influencer: { username: 'FitnessGuru' },
+                                user_message: 'What workout do you recommend for beginners?',
+                                bot_response: 'I recommend starting with a full-body workout 3 times a week. Focus on compound movements like squats, push-ups, and rows.',
+                                product_recommendations: true,
+                                created_at: '2023-04-25T14:30:00'
+                            },
+                            {
+                                id: '2',
+                                influencer_id: 'inf1',
+                                influencer: { username: 'FitnessGuru' },
+                                user_message: 'What protein powder do you use?',
+                                bot_response: 'I personally use a whey isolate protein. It's great for recovery and has minimal lactose.',
+                                product_recommendations: true,
+                                created_at: '2023-04-26T09:15:00'
+                            },
+                            {
+                                id: '3',
+                                influencer_id: 'inf2',
+                                influencer: { username: 'TechReviewer' },
+                                user_message: 'What's the best laptop for video editing?',
+                                bot_response: 'For video editing, I recommend a laptop with at least 16GB RAM, a dedicated GPU, and a high-quality display. The MacBook Pro and Dell XPS are great options.',
+                                product_recommendations: true,
+                                created_at: '2023-04-28T16:45:00'
+                            }
+                        ]);
+                    }, 1000);
+                });
+            }
+            
+            // Render chat history
+            function renderChatHistory(chats) {
+                if (!chats || chats.length === 0) {
+                    chatList.innerHTML = `
+                        <div class="empty-history">
+                            <i class="fas fa-comments"></i>
+                            <p class="empty-message">No chat history yet</p>
+                            <a href="chat.html" class="btn">Start Chatting</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Clear list
+                chatList.innerHTML = '';
+                
+                // Sort by date (newest first)
+                chats.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                // Add chats
+                chats.forEach(chat => {
+                    const chatEl = document.createElement('div');
+                    chatEl.className = 'chat-item';
+                    chatEl.dataset.influencerId = chat.influencer_id;
+                    
+                    // Format date
+                    const chatDate = new Date(chat.created_at);
+                    const formattedDate = UTILS.date.formatRelativeTime(chatDate);
+                    
+                    // Get initial for avatar
+                    const influencerName = chat.influencer?.username || 'Unknown';
+                    const initial = UTILS.ui.getInitials(influencerName);
+                    
+                    chatEl.innerHTML = `
+                        <div class="chat-avatar">${initial}</div>
+                        <div class="chat-details">
+                            <div class="chat-influencer">${influencerName}</div>
+                            <div class="chat-preview">${UTILS.string.truncate(chat.user_message, 100)}</div>
+                            <div class="chat-date">${formattedDate}</div>
+                        </div>
+                        <div class="chat-action">
+                            <a href="chat.html?username=${influencerName}" class="btn btn-secondary">
+                                <i class="fas fa-comments"></i>
+                            </a>
+                        </div>
+                    `;
+                    
+                    chatList.appendChild(chatEl);
+                });
+            }
+            
+            // Filter chat history
+            function filterChatHistory() {
+                const selectedInfluencerId = influencerSelect.value;
+                
+                // Get all chat items
+                const chatItems = document.querySelectorAll('.chat-item');
+                
+                if (selectedInfluencerId === 'all') {
+                    // Show all
+                    chatItems.forEach(item => {
+                        item.style.display = 'flex';
+                    });
+                } else {
+                    // Filter by influencer
+                    chatItems.forEach(item => {
+                        if (item.dataset.influencerId === selectedInfluencerId) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                }
+            }
+            
+            // Update profile
+            async function updateProfile(e) {
+                e.preventDefault();
+                
+                // Validate email
+                if (!UTILS.validation.isValidEmail(emailInput.value)) {
+                    document.getElementById('email-error').textContent = 'Please enter a valid email address';
+                    document.getElementById('email-error').style.display = 'block';
+                    return;
+                }
+                
+                try {
+                    // Set loading state
+                    UTILS.ui.toggleButtonLoading(profileForm.querySelector('button'), true, 'Saving...');
+                    
+                    // Prepare profile data
+                    const profileData = {
+                        email: emailInput.value,
+                        preferences: {
+                            emailNotifications: emailNotifications.checked,
+                            productUpdates: productUpdates.checked
+                        }
+                    };
+                    
+                    // Simulate API call (replace with actual API call)
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Update user data
+                    userData.email = profileData.email;
+                    
+                    // Update user object in localStorage
+                    localStorage.setItem(CONFIG.AUTH.USER_KEY, JSON.stringify(userData));
+                    
+                    // Update UI
+                    profileEmail.textContent = userData.email;
+                    
+                    // Show success message
+                    UTILS.ui.showAlert('Profile updated successfully!', 'success', alert);
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                    UTILS.ui.showAlert('An error occurred while updating your profile. Please try again.', 'danger', alert);
+                } finally {
+                    // Reset loading state
+                    UTILS.ui.toggleButtonLoading(profileForm.querySelector('button'), false, 'Save Changes');
+                }
+            }
+            
+            // Change password
+            async function changePassword(e) {
+                e.preventDefault();
+                
+                // Reset error messages
+                document.getElementById('current-password-error').style.display = 'none';
+                document.getElementById('new-password-error').style.display = 'none';
+                document.getElementById('confirm-password-error').style.display = 'none';
+                
+                // Validate inputs
+                if (!currentPasswordInput.value) {
+                    document.getElementById('current-password-error').textContent = 'Please enter your current password';
+                    document.getElementById('current-password-error').style.display = 'block';
+                    return;
+                }
+                
+                const passwordValidation = UTILS.validation.validatePassword(newPasswordInput.value);
+                if (!passwordValidation.valid) {
+                    document.getElementById('new-password-error').textContent = passwordValidation.message;
+                    document.getElementById('new-password-error').style.display = 'block';
+                    return;
+                }
+                
+                if (newPasswordInput.value !== confirmPasswordInput.value) {
+                    document.getElementById('confirm-password-error').textContent = 'Passwords do not match';
+                    document.getElementById('confirm-password-error').style.display = 'block';
+                    return;
+                }
+                
+                try {
+                    // Set loading state
+                    UTILS.ui.toggleButtonLoading(passwordForm.querySelector('button'), true, 'Changing Password...');
+                    
+                    // Simulate API call (replace with actual API call)
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Show success message
+                    UTILS.ui.showAlert('Password changed successfully!', 'success', alert);
+                    
+                    // Reset form
+                    passwordForm.reset();
+                } catch (error) {
+                    console.error('Error changing password:', error);
+                    UTILS.ui.showAlert('An error occurred while changing your password. Please try again.', 'danger', alert);
+                } finally {
+                    // Reset loading state
+                    UTILS.ui.toggleButtonLoading(passwordForm.querySelector('button'), false, 'Change Password');
+                }
+            }
+            
+            // Delete account
+            async function deleteAccount() {
+                try {
+                    // Set loading state
+                    UTILS.ui.toggleButtonLoading(confirmDeleteBtn, true, 'Deleting...');
+                    
+                    // Simulate API call (replace with actual API call)
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Clear auth data
+                    localStorage.removeItem(CONFIG.AUTH.TOKEN_KEY);
+                    localStorage.removeItem(CONFIG.AUTH.USER_KEY);
+                    
+                    // Redirect to home page
+                    window.location.href = '../../index.html';
+                } catch (error) {
+                    console.error('Error deleting account:', error);
+                    UTILS.ui.showAlert('An error occurred while deleting your account. Please try again.', 'danger', alert);
+                } finally {
+                    // Hide dialog
+                    deleteDialog.style.display = 'none';
+                    
+                    // Reset loading state
+                    UTILS.ui.toggleButtonLoading(confirmDeleteBtn, false, 'Delete Account');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
