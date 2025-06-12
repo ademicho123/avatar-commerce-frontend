@@ -581,7 +581,7 @@
         <div class="header">
             <h1 class="page-title">Avatar Setup</h1>
             <div class="header-actions">
-                <a href="../fan/chat.html" target="_blank" class="btn btn-secondary">
+                <a href="#" id="preview-chat-link" target="_blank" class="btn btn-secondary">
                     <i class="fas fa-external-link-alt"></i> Preview Chat
                 </a>
                 <a href="dashboard.html" class="btn btn-secondary">
@@ -690,7 +690,7 @@
             
             if (!token || !userStr) {
                 // Redirect to login if not logged in
-                window.location.href = '../auth/login.html';
+                window.location.href = '../login.html';
                 return;
             }
             
@@ -699,7 +699,7 @@
             
             // Check if user is an influencer
             if (user.userType !== 'influencer') {
-                window.location.href = '../auth/login.html';
+                window.location.href = '../login.html';
                 return;
             }
             
@@ -714,11 +714,21 @@
                 document.getElementById('user-avatar').textContent = initials;
             }
             
+            // Set up preview chat link
+            const previewChatLink = document.getElementById('preview-chat-link');
+            if (previewChatLink && user) {
+                // Get current origin and construct the correct path
+                const currentOrigin = window.location.origin;
+                const chatUrl = `${currentOrigin}/pages/chat.html?username=${encodeURIComponent(user.username)}`;
+                previewChatLink.href = chatUrl;
+                console.log('Preview chat link set to:', chatUrl);
+            }
+            
             // Logout button
             document.getElementById('logout-btn').addEventListener('click', function() {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = '../auth/login.html';
+                window.location.href = '../login.html';
             });
             
             // DOM elements
@@ -866,22 +876,31 @@
                 }
                 
                 // Show loading state
-                loadingText.textContent = 'Creating your avatar...';
+                loadingText.textContent = 'Creating your custom avatar... This may take 2-5 minutes.';
                 loadingOverlay.style.display = 'flex';
+                
+                // Disable the create button
+                createAvatarBtn.disabled = true;
                 
                 try {
                     // Create form data
                     const formData = new FormData();
                     formData.append('file', selectedFile);
                     
-                    // Send the request
+                    // Send the request with extended timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes timeout
+                    
                     const response = await fetch(`${API_BASE_URL}/avatar/create`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`
                         },
-                        body: formData
+                        body: formData,
+                        signal: controller.signal
                     });
+                    
+                    clearTimeout(timeoutId);
                     
                     const data = await response.json();
                     
@@ -894,7 +913,11 @@
                         user.avatar_id = data.data.avatar_id;
                         localStorage.setItem('user', JSON.stringify(user));
                         
-                        showAlert('Avatar created successfully!', 'success');
+                        // Show success message
+                        showAlert('Custom avatar created successfully! Your avatar is being trained and will be ready soon.', 'success');
+                        
+                        // Start checking avatar training status
+                        checkAvatarTrainingStatus(data.data.avatar_id);
                         
                         // Hide the preview container
                         previewContainer.style.display = 'none';
@@ -902,78 +925,231 @@
                         
                         // Reset file selection
                         resetFileSelection();
+                        
                     } else {
-                        showAlert(data.message || 'Failed to create avatar. Please try again.', 'danger');
+                        // Show detailed error message
+                        let errorMessage = data.message || 'Failed to create avatar. Please try again.';
+                        
+                        // Add specific guidance based on error
+                        if (errorMessage.includes('Invalid image')) {
+                            errorMessage += ' Please ensure you upload a clear photo showing your face.';
+                        } else if (errorMessage.includes('API key')) {
+                            errorMessage += ' Please contact support to verify your account.';
+                        } else if (errorMessage.includes('403') || errorMessage.includes('forbidden')) {
+                            errorMessage += ' Your plan may not include custom avatar creation.';
+                        }
+                        
+                        // If image was uploaded to Supabase but HeyGen failed
+                        if (data.data && data.data.public_url) {
+                            errorMessage += ' Your image was saved. You can try again or contact support.';
+                            // Still update the profile image
+                            updateAvatarStatus(false, null, data.data.public_url);
+                        }
+                        
+                        showAlert(errorMessage, 'danger');
                     }
                 } catch (error) {
                     console.error('Error creating avatar:', error);
-                    showAlert('An error occurred while creating your avatar. Please try again.', 'danger');
+                    
+                    let errorMessage = 'An error occurred while creating your avatar.';
+                    
+                    if (error.name === 'AbortError') {
+                        errorMessage = 'Avatar creation timed out. This process can take several minutes. Please try again.';
+                    } else if (error.message.includes('Failed to fetch')) {
+                        errorMessage = 'Network error. Please check your connection and try again.';
+                    }
+                    
+                    showAlert(errorMessage, 'danger');
                 } finally {
-                    // Hide loading state
+                    // Hide loading state and re-enable button
                     loadingOverlay.style.display = 'none';
+                    createAvatarBtn.disabled = false;
                 }
             }
-            
-            // Test the avatar
-            async function testAvatar() {
-                avatarStatus.textContent = 'Loading test video...';
+
+            // Function to check avatar training status
+            async function checkAvatarTrainingStatus(avatarId, maxAttempts = 10) {
+                let attempts = 0;
                 
-                // Show video preview, hide image
-                avatarPreviewPlaceholder.style.display = 'none';
-                avatarPreviewImage.style.display = 'none';
-                avatarPreviewVideo.style.display = 'block';
+                const checkStatus = async () => {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/avatar/status/${avatarId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.status === 'success') {
+                            const trainingStatus = data.data.training_status;
+                            
+                            console.log(`Avatar training status: ${trainingStatus}`);
+                            
+                            // Update UI based on status
+                            const statusElement = document.getElementById('avatar-status');
+                            if (statusElement) {
+                                switch (trainingStatus) {
+                                    case 'pending':
+                                        statusElement.textContent = 'Avatar training in progress...';
+                                        statusElement.style.color = '#f59e0b';
+                                        break;
+                                    case 'processing':
+                                        statusElement.textContent = 'Avatar training in progress...';
+                                        statusElement.style.color = '#f59e0b';
+                                        break;
+                                    case 'completed':
+                                        statusElement.textContent = 'Avatar ready for video generation!';
+                                        statusElement.style.color = '#10b981';
+                                        showAlert('Your custom avatar is now ready for video generation!', 'success');
+                                        return; // Stop checking
+                                    case 'failed':
+                                        statusElement.textContent = 'Avatar training failed';
+                                        statusElement.style.color = '#ef4444';
+                                        showAlert('Avatar training failed. Please try creating a new avatar.', 'danger');
+                                        return; // Stop checking
+                                    default:
+                                        statusElement.textContent = `Avatar status: ${trainingStatus}`;
+                                        statusElement.style.color = '#6b7280';
+                                }
+                            }
+                            
+                            // Continue checking if not completed or failed
+                            if (trainingStatus !== 'completed' && trainingStatus !== 'failed' && attempts < maxAttempts) {
+                                setTimeout(checkStatus, 30000); // Check again in 30 seconds
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error checking avatar status:', error);
+                    }
+                    
+                    attempts++;
+                };
+                
+                // Start checking
+                setTimeout(checkStatus, 10000); // First check after 10 seconds
+            }
+
+            // Updated test avatar function
+            async function testAvatar() {
+                const avatarStatus = document.getElementById('avatar-status');
+                const avatarPreviewVideo = document.getElementById('avatar-preview-video');
+                
+                // Show loading state
+                avatarStatus.textContent = 'Testing your custom avatar...';
                 
                 try {
-                    // Create a test message for the avatar
+                    const token = localStorage.getItem('token');
+                    const userStr = localStorage.getItem('user');
+                    
+                    if (!token || !userStr) {
+                        showAlert('Please log in to test your avatar.', 'danger');
+                        return;
+                    }
+                    
+                    const user = JSON.parse(userStr);
+                    
+                    if (!user.id || !user.avatar_id) {
+                        showAlert('Avatar not found. Please create an avatar first.', 'danger');
+                        return;
+                    }
+                    
+                    // Create a test message for the custom avatar
                     const testMessage = {
-                        message: "Hello! This is a test of your AI avatar. I'm excited to chat with your fans!",
+                        message: "Hello! This is a test of your custom AI avatar. I'm excited to chat with your fans and help promote your content!",
                         influencer_id: user.id,
                         voice_mode: false
                     };
                     
-                    // Send the request
+                    console.log('Testing custom avatar:', testMessage);
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+                    
                     const response = await fetch(`${API_BASE_URL}/chat`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify(testMessage)
+                        body: JSON.stringify(testMessage),
+                        signal: controller.signal
                     });
                     
-                    const data = await response.json();
+                    clearTimeout(timeoutId);
                     
-                    if (data.status === 'success' && data.data.video_url) {
-                        // Update video preview
-                        avatarPreviewVideo.src = data.data.video_url;
-                        avatarPreviewVideo.play();
-                        
+                    console.log('Test response status:', response.status);
+                    
+                    const data = await response.json();
+                    console.log('Test response data:', data);
+                    
+                    if (response.ok && data.status === 'success') {
                         avatarStatus.textContent = 'Test successful!';
-                    } else {
-                        showAlert(data.message || 'Failed to generate test video. Please try again.', 'danger');
-                        avatarStatus.textContent = 'Test failed. Please try again.';
                         
-                        // Hide video, show image or placeholder
-                        avatarPreviewVideo.style.display = 'none';
-                        if (avatarPreviewImage.src) {
-                            avatarPreviewImage.style.display = 'block';
+                        if (data.data.video_url && data.data.video_url.trim() !== '') {
+                            console.log('Custom avatar video URL received:', data.data.video_url);
+                            
+                            // Show video preview
+                            avatarPreviewVideo.style.display = 'block';
+                            avatarPreviewVideo.src = data.data.video_url;
+                            
+                            avatarPreviewVideo.onloadstart = function() {
+                                avatarStatus.textContent = 'Loading your custom avatar video...';
+                            };
+                            
+                            avatarPreviewVideo.oncanplay = function() {
+                                avatarStatus.textContent = 'Your custom avatar is ready! Click play to watch.';
+                            };
+                            
+                            avatarPreviewVideo.onerror = function(e) {
+                                console.error('Video load error:', e);
+                                avatarStatus.textContent = 'Video generated but failed to load.';
+                                showAlert('Custom avatar video was generated but failed to load. This might be temporary.', 'warning');
+                            };
+                            
+                            try {
+                                await avatarPreviewVideo.play();
+                            } catch (playError) {
+                                console.log('Autoplay prevented:', playError);
+                                avatarStatus.textContent = 'Custom avatar test successful! Click play to watch.';
+                            }
+                            
+                            showAlert('Custom avatar test completed successfully! Your personalized avatar is working perfectly.', 'success');
                         } else {
-                            avatarPreviewPlaceholder.style.display = 'flex';
+                            console.log('No video URL in response for custom avatar');
+                            avatarStatus.textContent = 'Avatar responded but video generation may still be processing.';
+                            showAlert('Your custom avatar responded! Video generation may take a bit longer for custom avatars.', 'warning');
+                        }
+                    } else {
+                        const errorMessage = data?.message || 'Unknown error occurred';
+                        console.error('Custom avatar test error:', errorMessage);
+                        
+                        avatarStatus.textContent = 'Test failed.';
+                        
+                        if (response.status === 400) {
+                            showAlert('Avatar test failed. Your custom avatar may still be training.', 'warning');
+                        } else if (response.status === 401) {
+                            showAlert('Authentication failed. Please log in again.', 'danger');
+                        } else if (response.status === 404) {
+                            showAlert('Custom avatar not found. Please make sure your avatar creation completed successfully.', 'danger');
+                        } else {
+                            showAlert(`Test failed: ${errorMessage}. Your custom avatar may still be training.`, 'warning');
                         }
                     }
                 } catch (error) {
-                    console.error('Error testing avatar:', error);
-                    showAlert('An error occurred while testing your avatar. Please try again.', 'danger');
+                    console.error('Test custom avatar error:', error);
                     
-                    // Hide video, show image or placeholder
-                    avatarPreviewVideo.style.display = 'none';
-                    if (avatarPreviewImage.src) {
-                        avatarPreviewImage.style.display = 'block';
-                    } else {
-                        avatarPreviewPlaceholder.style.display = 'flex';
+                    let errorMessage = 'An error occurred while testing your custom avatar.';
+                    
+                    if (error.name === 'AbortError') {
+                        errorMessage = 'Test timed out. Custom avatar video generation takes longer than stock avatars.';
+                    } else if (error.message.includes('Failed to fetch')) {
+                        errorMessage = 'Cannot connect to server. Please check your internet connection.';
                     }
                     
-                    avatarStatus.textContent = 'Test failed. Please try again.';
+                    avatarStatus.textContent = 'Test failed.';
+                    showAlert(errorMessage, 'danger');
                 }
             }
             
@@ -1008,20 +1184,45 @@
             
             // Show alert message
             function showAlert(message, type) {
-                alert.textContent = message;
-                alert.className = 'alert';
-                alert.classList.add(`alert-${type}`);
-                alert.style.display = 'block';
-                
-                // Auto-hide success messages after 5 seconds
-                if (type === 'success') {
-                    setTimeout(() => {
-                        alert.style.display = 'none';
-                    }, 5000);
+                try {
+                    const alert = document.getElementById('alert');
+                    if (!alert) {
+                        // Fallback: create alert element if it doesn't exist
+                        console.warn('Alert element not found, using console log instead');
+                        console.log(`${type.toUpperCase()}: ${message}`);
+                        
+                        // Try to show browser alert as fallback
+                        if (type === 'danger' || type === 'error') {
+                            alert(message);
+                        }
+                        return;
+                    }
+                    
+                    alert.textContent = message;
+                    alert.className = 'alert';
+                    alert.classList.add(`alert-${type}`);
+                    alert.style.display = 'block';
+                    
+                    // Auto-hide success messages after 5 seconds
+                    if (type === 'success') {
+                        setTimeout(() => {
+                            if (alert && alert.style) {
+                                alert.style.display = 'none';
+                            }
+                        }, 5000);
+                    }
+                    
+                    // Scroll to top to see alert
+                    window.scrollTo(0, 0);
+                } catch (error) {
+                    console.error('Error in showAlert function:', error);
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                    
+                    // Fallback to browser alert for critical messages
+                    if (type === 'danger' || type === 'error') {
+                        alert(message);
+                    }
                 }
-                
-                // Scroll to top to see alert
-                window.scrollTo(0, 0);
             }
             
             // Format file size

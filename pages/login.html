@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - AvatarCommerce</title>
+    <title>Login - Avatar Commerce</title>
     <style>
-        /* Reset and base styles */
+        /* Same styles as before but simplified... */
         * {
             margin: 0;
             padding: 0;
@@ -92,26 +92,6 @@
         
         .auth-header p {
             color: #666;
-        }
-        
-        .auth-tabs {
-            display: flex;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 20px;
-        }
-        
-        .auth-tab {
-            flex: 1;
-            text-align: center;
-            padding: 15px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: color 0.3s, border-color 0.3s;
-        }
-        
-        .auth-tab.active {
-            color: #5e60ce;
-            border-bottom: 3px solid #5e60ce;
         }
         
         .form-group {
@@ -244,7 +224,7 @@
         <div class="container">
             <nav class="navbar">
                 <div class="logo">
-                    <a href="../../index.html">Avatar<span>Commerce</span></a>
+                    <a href="../index.html">Avatar<span>Commerce</span></a>
                 </div>
             </nav>
         </div>
@@ -254,13 +234,8 @@
     <main class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Welcome Back</h1>
-                <p>Login to your account to access your dashboard</p>
-            </div>
-            
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="influencer-tab">Influencer</div>
-                <div class="auth-tab" id="fan-tab">Fan</div>
+                <h1>Influencer Login</h1>
+                <p>Access your dashboard and manage your AI avatar</p>
             </div>
             
             <div id="alert" class="alert"></div>
@@ -312,26 +287,8 @@
             const usernameError = document.getElementById('username-error');
             const passwordError = document.getElementById('password-error');
             const alert = document.getElementById('alert');
-            const influencerTab = document.getElementById('influencer-tab');
-            const fanTab = document.getElementById('fan-tab');
             const spinner = document.getElementById('spinner');
             const submitText = document.getElementById('submit-text');
-            
-            // Default user type
-            let userType = 'influencer';
-            
-            // Tab switching
-            influencerTab.addEventListener('click', function() {
-                influencerTab.classList.add('active');
-                fanTab.classList.remove('active');
-                userType = 'influencer';
-            });
-            
-            fanTab.addEventListener('click', function() {
-                fanTab.classList.add('active');
-                influencerTab.classList.remove('active');
-                userType = 'fan';
-            });
             
             // Form validation
             function validateForm() {
@@ -398,13 +355,8 @@
                 };
                 
                 try {
-                    // Determine API endpoint based on user type
-                    const endpoint = userType === 'influencer' 
-                        ? '/auth/influencer/login' 
-                        : '/auth/fan/login';
-                    
-                    // Send login request
-                    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    // Send login request (only influencer endpoint now)
+                    const response = await fetch(`${API_BASE_URL}/login`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -419,19 +371,15 @@
                         localStorage.setItem('token', data.data.token);
                         localStorage.setItem('user', JSON.stringify({
                             ...data.data,
-                            userType
+                            userType: 'influencer'
                         }));
                         
                         // Show success message
                         showAlert('Login successful! Redirecting...', 'success');
                         
-                        // Redirect to appropriate dashboard
+                        // Redirect to influencer dashboard
                         setTimeout(() => {
-                            if (userType === 'influencer') {
-                                window.location.href = '../influencer/dashboard.html';
-                            } else {
-                                window.location.href = '../fan/chat.html';
-                            }
+                            window.location.href = 'dashboard.html';
                         }, 1500);
                     } else {
                         // Show error message

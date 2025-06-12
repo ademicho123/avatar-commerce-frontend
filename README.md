@@ -1,25 +1,26 @@
-# avatar-commerce-frontend
-```
-avatar-commerce-frontend/
-├── index.html                # Landing page with embedded CSS and JS
-├── assets/                   # Static assets
-│   ├── images/               # Image files
-│   └── icons/                # Icon files
-├── pages/                    # HTML pages with embedded CSS and JS
-│   ├── auth/                 # Authentication pages
-│   │   ├── login.html        # Login page
-│   │   └── register.html     # Registration page
-│   ├── influencer/           # Influencer pages
-│   │   ├── dashboard.html    # Influencer dashboard
-│   │   ├── avatar-setup.html # Avatar creation  
-│   │   ├── voice-setup.html  # Voice configuration
-│   │   ├── analytics.html    # Analytics dashboard
-│   │   └── settings.html     # Account settings
-│   └── fan/                  # Fan pages
-│       ├── chat.html         # Chat interface
-│       └── profile.html      # Fan profile
-├── js/                       # Shared JavaScript modules
-│   ├── config.js             # API configuration
-│   ├── api-client.js         # Base API client
-│   └── utils.js              # Common utility functions
-```
+AVATAR-COMMERCE-FRONTEND/
+├── assets/
+│   ├── icons/
+│   └── images/
+├── js/
+│   ├── api-client.js
+│   ├── config.js
+│   └── utils.js
+├── pages/
+│   ├── analytics.html
+│   ├── avatar-setup.html
+│   ├── chat.html
+│   ├── dashboard.html
+│   ├── login.html
+│   ├── register.html
+│   ├── settings.html
+│   └── voice-setup.html
+├── static/              # ← NEW
+│   └── embed/           # ← NEW
+│       ├── chatbot-widget.js    # ← NEW
+│       └── chatbot-widget.css   # ← NEW
+├── index.html
+└── README.md
+
+
+python -m http.server 8000

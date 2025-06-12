@@ -579,6 +579,35 @@
             color: #555;
         }
         
+        /* Error display */
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 3rem;
+            color: #b91c1c;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
         /* Footer */
         footer {
             background-color: #333;
@@ -712,8 +741,8 @@
                 </ul>
                 
                 <div class="auth-buttons" id="auth-buttons">
-                    <a href="../auth/login.html" class="btn btn-secondary">Login</a>
-                    <a href="../auth/register.html" class="btn">Sign Up</a>
+                    <a href="../login.html" class="btn btn-secondary">Login</a>
+                    <a href="../register.html" class="btn">Sign Up</a>
                 </div>
             </div>
         </div>
@@ -731,7 +760,7 @@
                     <img id="profile-image" class="profile-image" src="" alt="Influencer Avatar" style="display: none;">
                     
                     <div>
-                        <h2 id="profile-name" class="profile-name">Influencer</h2>
+                        <h2 id="profile-name" class="profile-name">Loading...</h2>
                         <p id="profile-bio" class="profile-bio">Loading bio...</p>
                     </div>
                 </div>
@@ -747,7 +776,7 @@
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
-                        <p class="setting-description">Enable voice responses from the avatar</p>
+                        <p class="setting-description" id="voice-mode-description">Enable voice responses from the avatar</p>
                     </div>
                     
                     <div class="setting-option">
@@ -765,7 +794,7 @@
                 <div id="login-prompt" class="login-prompt">
                     <h3 class="prompt-title">Create an Account</h3>
                     <p class="prompt-text">Sign up to save your chat history and preferences</p>
-                    <a href="../auth/register.html" class="btn">Sign Up Free</a>
+                    <a href="../register.html" class="btn">Sign Up Free</a>
                 </div>
             </div>
             
@@ -777,33 +806,13 @@
                 </div>
                 
                 <div id="chat-messages" class="chat-messages">
-                    <!-- Welcome message -->
-                    <div class="message">
-                        <div class="message-placeholder">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="message-content">
-                            <div class="message-bubble">
-                                👋 Hi there! I'm loading... Please wait a moment while I get ready to chat with you.
-                            </div>
-                            <div class="message-info">Just now</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Typing indicator -->
-                    <div id="typing-indicator" class="typing-indicator">
-                        <div class="typing-dots">
-                            <span class="typing-dot"></span>
-                            <span class="typing-dot"></span>
-                            <span class="typing-dot"></span>
-                        </div>
-                    </div>
+                    <!-- Messages will be loaded here -->
                 </div>
                 
                 <div class="chat-input-container">
                     <textarea id="chat-input" class="chat-input" placeholder="Type your message..." rows="1"></textarea>
                     <div class="input-actions">
-                        <button id="voice-input-btn" class="voice-input-btn">
+                        <button id="voice-input-btn" class="voice-input-btn" disabled>
                             <i class="fas fa-microphone"></i>
                         </button>
                         <button id="send-btn" class="btn send-btn">
@@ -832,7 +841,7 @@
             </div>
         </div>
     </footer>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // API base URL
@@ -850,48 +859,42 @@
             const voiceInputBtn = document.getElementById('voice-input-btn');
             const voiceModeToggle = document.getElementById('voice-mode-toggle');
             const voiceInputToggle = document.getElementById('voice-input-toggle');
-            const typingIndicator = document.getElementById('typing-indicator');
+            const voiceModeDescription = document.getElementById('voice-mode-description');
             const loginPrompt = document.getElementById('login-prompt');
             const authButtons = document.getElementById('auth-buttons');
             
             // User and chat data
             let influencerId = null;
             let influencerUsername = null;
-            let fanId = null;
+            let sessionId = null;
             let voiceId = null;
             let hasVoice = false;
+            let isLoading = false;
+            
+            // Generate session ID for anonymous users
+            sessionId = generateSessionId();
             
             // Get URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             const usernameParam = urlParams.get('username');
-            const demoMode = urlParams.get('demo') === 'true';
             
-            // Check if user is logged in
-            const token = localStorage.getItem('token');
-            const userStr = localStorage.getItem('user');
+            console.log('URL parameters:', {
+                username: usernameParam,
+                fullURL: window.location.href,
+                search: window.location.search
+            });
             
-            if (token && userStr) {
-                const user = JSON.parse(userStr);
-                
-                // Update auth display
-                updateAuthDisplay(user);
-                
-                // If user is a fan, set fanId
-                if (user.userType === 'fan') {
-                    fanId = user.id;
-                    loginPrompt.style.display = 'none';
-                }
+            if (!usernameParam) {
+                showError('No influencer username provided in URL. Please access this chat through a valid link.');
+                return;
             }
             
-            // Initialize chat with username from URL or demo mode
-            if (usernameParam) {
-                initializeChat(usernameParam);
-            } else if (demoMode) {
-                // Demo mode with a sample influencer
-                initializeChat('demo');
-            } else {
-                // No username provided
-                showError('No influencer username provided. Please select an influencer to chat with.');
+            // Initialize chat with the username
+            initializeChat(usernameParam);
+            
+            // Generate a session ID for anonymous users
+            function generateSessionId() {
+                return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             }
             
             // Chat input auto-resize
@@ -953,19 +956,45 @@
             // Initialize chat with influencer
             async function initializeChat(username) {
                 try {
-                    // Get influencer info
-                    const response = await fetch(`${API_BASE_URL}/chat/${username}`);
+                    console.log('Initializing chat for username:', username);
+                    
+                    // Show loading message
+                    showLoadingMessage();
+                    
+                    // Add timeout to the fetch request
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                    
+                    // Get influencer info - FIXED ENDPOINT WITH TIMEOUT
+                    const response = await fetch(`${API_BASE_URL}/chat/${encodeURIComponent(username)}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    console.log('API Response status:', response.status);
+                    console.log('API Response headers:', Object.fromEntries(response.headers.entries()));
                     
                     if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('API Error Response:', errorText);
+                        
                         if (response.status === 404) {
                             showError(`Influencer '${username}' not found or hasn't set up their avatar yet.`);
+                        } else if (response.status === 500) {
+                            showError(`Server error (${response.status}). Please try again later.`);
                         } else {
-                            showError('Failed to load influencer data. Please try again later.');
+                            showError(`Failed to load influencer data (${response.status}). Please try again later.`);
                         }
                         return;
                     }
                     
                     const data = await response.json();
+                    console.log('API Response data:', data);
                     
                     if (data.status === 'success') {
                         // Store influencer data
@@ -981,18 +1010,54 @@
                         clearMessages();
                         addWelcomeMessage(data.data.bio_snippet);
                         
-                        // Enable/disable voice features
-                        if (!hasVoice) {
-                            voiceModeToggle.disabled = true;
-                            document.querySelector('.setting-option:first-child .setting-description').textContent = 
-                                'This influencer has not set up voice responses';
-                        }
+                        // Enable/disable voice features based on availability
+                        updateVoiceFeatures();
+                        
                     } else {
                         showError(data.message || 'Failed to load influencer data.');
                     }
                 } catch (error) {
                     console.error('Error initializing chat:', error);
-                    showError('An error occurred while loading the chat. Please try again later.');
+                    
+                    // More specific error messages
+                    if (error.name === 'AbortError') {
+                        showError('Request timed out. Please check your server connection and try again.');
+                    } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                        showError('Cannot connect to server. Please check that your backend is running on http://localhost:2000');
+                    } else if (error.name === 'SyntaxError') {
+                        showError('Server returned invalid response. Please try again later.');
+                    } else {
+                        showError(`Connection error: ${error.message}. Please check your backend server.`);
+                    }
+                }
+            }
+            
+            // Show loading message
+            function showLoadingMessage() {
+                chatMessages.innerHTML = `
+                    <div class="message">
+                        <div class="message-placeholder">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                Loading influencer data...
+                            </div>
+                            <div class="message-info">Just now</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update voice features based on availability
+            function updateVoiceFeatures() {
+                if (!hasVoice) {
+                    voiceModeToggle.disabled = true;
+                    voiceModeToggle.checked = false;
+                    voiceModeDescription.textContent = 'This influencer has not set up voice responses';
+                } else {
+                    voiceModeToggle.disabled = false;
+                    voiceModeDescription.textContent = 'Enable voice responses from the avatar';
                 }
             }
             
@@ -1008,53 +1073,21 @@
                     profileImage.style.display = 'none';
                     
                     // Set initial for placeholder
-                    const initial = data.username.charAt(0).toUpperCase();
+                    const initial = data.username ? data.username.charAt(0).toUpperCase() : 'U';
                     profilePlaceholder.innerHTML = initial;
                 }
                 
                 // Set name and bio
-                profileName.textContent = data.username;
+                profileName.textContent = data.username || 'Unknown Influencer';
                 profileBio.textContent = data.bio_snippet || 'No bio available';
                 
                 // Update chat title
-                chatTitle.textContent = `Chat with ${data.username}`;
-            }
-            
-            // Update auth display
-            function updateAuthDisplay(user) {
-                // Update auth buttons
-                let authContent = '';
-                
-                if (user.userType === 'fan') {
-                    authContent = `
-                        <span style="margin-right: 10px; font-weight: 500;">Hi, ${user.username}!</span>
-                        <button id="logout-btn" class="btn btn-secondary">Logout</button>
-                    `;
-                } else if (user.userType === 'influencer') {
-                    authContent = `
-                        <a href="../influencer/dashboard.html" class="btn btn-secondary">Dashboard</a>
-                        <button id="logout-btn" class="btn btn-secondary">Logout</button>
-                    `;
-                }
-                
-                authButtons.innerHTML = authContent;
-                
-                // Add logout handler
-                const logoutBtn = document.getElementById('logout-btn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', function() {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        window.location.reload();
-                    });
-                }
+                chatTitle.textContent = `Chat with ${data.username || 'Influencer'}`;
             }
             
             // Clear messages
             function clearMessages() {
-                while (chatMessages.firstChild) {
-                    chatMessages.removeChild(chatMessages.firstChild);
-                }
+                chatMessages.innerHTML = '';
             }
             
             // Add welcome message
@@ -1068,7 +1101,7 @@
                     </div>
                     <div class="message-content">
                         <div class="message-bubble">
-                            👋 Hi there! I'm ${influencerUsername}'s AI avatar. ${bioSnippet ? 'A bit about me: ' + bioSnippet : ''} What would you like to chat about today?
+                            👋 Hi there! I'm ${influencerUsername}'s AI avatar. ${bioSnippet ? 'A bit about me: ' + bioSnippet + ' ' : ''}What would you like to chat about today?
                         </div>
                         <div class="message-info">Just now</div>
                     </div>
@@ -1114,7 +1147,7 @@
                 const hasProductRecs = response.has_product_recommendations;
                 
                 // Split response text if it has product recommendations
-                let chatResponse = response.text;
+                let chatResponse = response.text || '';
                 let productRecommendations = '';
                 
                 if (hasProductRecs) {
@@ -1138,7 +1171,7 @@
                 if (hasVideo) {
                     messageHTML += `
                         <div class="avatar-response">
-                            <video class="avatar-video" controls${hasAudio ? ' muted' : ''}>
+                            <video class="avatar-video" controls${hasAudio ? ' muted' : ''} autoplay>
                                 <source src="${response.video_url}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -1183,47 +1216,72 @@
             // Add system message
             function addSystemMessage(message) {
                 const messageDiv = document.createElement('div');
-                messageDiv.className = 'message';
-                
-                messageDiv.innerHTML = `
-                    <div style="margin: 0 auto; font-style: italic; color: #666; font-size: 0.9rem; text-align: center; margin-bottom: 15px;">
-                        ${message}
-                    </div>
-                `;
+                messageDiv.style.margin = '0 auto 15px';
+                messageDiv.style.fontStyle = 'italic';
+                messageDiv.style.color = '#666';
+                messageDiv.style.fontSize = '0.9rem';
+                messageDiv.style.textAlign = 'center';
+                messageDiv.textContent = message;
                 
                 chatMessages.appendChild(messageDiv);
                 scrollToBottom();
             }
             
-            // Show error message
-            function showError(message) {
-                clearMessages();
+            // Show typing indicator
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.id = 'typing-indicator';
+                typingDiv.className = 'typing-indicator';
+                typingDiv.style.display = 'block';
                 
-                const errorDiv = document.createElement('div');
-                errorDiv.style.padding = '20px';
-                errorDiv.style.textAlign = 'center';
-                errorDiv.style.color = '#b91c1c';
-                
-                errorDiv.innerHTML = `
-                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 15px;"></i>
-                    <h3 style="margin-bottom: 10px; font-size: 1.2rem;">Error</h3>
-                    <p>${message}</p>
+                typingDiv.innerHTML = `
+                    <div class="typing-dots">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
                 `;
                 
-                chatMessages.appendChild(errorDiv);
+                chatMessages.appendChild(typingDiv);
+                scrollToBottom();
+            }
+            
+            // Hide typing indicator
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            // Show error message
+            function showError(message) {
+                chatMessages.innerHTML = `
+                    <div class="error-container">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <h3 class="error-title">Error</h3>
+                        <p class="error-message">${message}</p>
+                    </div>
+                `;
             }
             
             // Send message
             async function sendMessage() {
                 const message = chatInput.value.trim();
                 
-                if (!message) return;
+                if (!message || isLoading) return;
                 
                 // Check if influencer is loaded
                 if (!influencerId) {
                     addSystemMessage('Please wait until the chat is fully loaded.');
                     return;
                 }
+                
+                // Set loading state
+                isLoading = true;
+                sendBtn.disabled = true;
                 
                 // Add user message to chat
                 addUserMessage(message);
@@ -1233,51 +1291,54 @@
                 chatInput.style.height = 'auto';
                 
                 // Show typing indicator
-                typingIndicator.style.display = 'block';
-                scrollToBottom();
+                showTypingIndicator();
                 
                 try {
                     // Prepare request data
                     const requestData = {
                         message: message,
                         influencer_id: influencerId,
-                        voice_mode: voiceModeToggle.checked
+                        session_id: sessionId,
+                        voice_mode: voiceModeToggle.checked && hasVoice
                     };
                     
-                    // Add fan ID if logged in
-                    if (fanId) {
-                        requestData.fan_id = fanId;
-                    }
+                    console.log('Sending request:', requestData);
                     
                     // Send request
                     const response = await fetch(`${API_BASE_URL}/chat`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': token ? `Bearer ${token}` : undefined
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(requestData)
                     });
                     
+                    console.log('Chat response status:', response.status);
+                    
                     // Hide typing indicator
-                    typingIndicator.style.display = 'none';
+                    hideTypingIndicator();
                     
                     if (!response.ok) {
-                        throw new Error('Failed to send message. Please try again.');
+                        throw new Error(`HTTP ${response.status}: Failed to send message`);
                     }
                     
                     const data = await response.json();
+                    console.log('Chat response data:', data);
                     
                     if (data.status === 'success') {
                         // Add response to chat
                         addAvatarResponse(data.data);
                     } else {
-                        addSystemMessage('Failed to get response. Please try again.');
+                        addSystemMessage('Failed to get response: ' + (data.message || 'Unknown error'));
                     }
                 } catch (error) {
                     console.error('Error sending message:', error);
-                    typingIndicator.style.display = 'none';
-                    addSystemMessage('An error occurred. Please try again later.');
+                    hideTypingIndicator();
+                    addSystemMessage('Connection error. Please check your internet connection and try again.');
+                } finally {
+                    // Reset loading state
+                    isLoading = false;
+                    sendBtn.disabled = false;
                 }
             }
             
@@ -1428,34 +1489,10 @@
             function formatProductRecommendations(text) {
                 if (!text) return '';
                 
-                // Extract product sections using regex
-                const productTitle = '### Recommended Products';
-                let formatted = `<div class="product-title">${productTitle}</div><div class="product-list">`;
-                
-                // Pattern for product sections: 🛒 [title] - [price]\n📷 [Image]([url])\n🔗 [Buy Now]([url])
-                const productRegex = /🛒 (.*?) - (.*?)(?:\n📷 \[Image\]\((.*?)\))?(?:\n🔗 \[Buy Now\]\((.*?)\))?/g;
-                let match;
-                
-                let productCount = 0;
-                while ((match = productRegex.exec(text)) !== null && productCount < 4) {
-                    const title = match[1] || 'Product';
-                    const price = match[2] || '';
-                    const imageUrl = match[3] || '';
-                    const buyUrl = match[4] || '#';
-                    
-                    formatted += `
-                        <div class="product-item">
-                            <img src="${imageUrl || '../../assets/images/product-placeholder.jpg'}" alt="${title}" class="product-image">
-                            <div class="product-name">${title}</div>
-                            <div class="product-price">${price}</div>
-                            <a href="${buyUrl}" target="_blank" class="product-link">View Product</a>
-                        </div>
-                    `;
-                    
-                    productCount++;
-                }
-                
-                formatted += '</div>';
+                // Simple formatting for product recommendations
+                let formatted = text.replace(/\n/g, '<br>');
+                formatted = formatted.replace(/### /g, '<h3>');
+                formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 
                 return formatted;
             }

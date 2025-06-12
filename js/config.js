@@ -18,6 +18,13 @@ const CONFIG = {
         SESSION_DURATION: 30 // Number of days that a session lasts
     },
     
+    ROUTES: {
+        LOGIN: 'login.html',
+        REGISTER: 'register.html',
+        DASHBOARD: 'dashboard.html',
+        HOME: '../index.html'
+    },
+    
     // File Upload
     UPLOAD: {
         MAX_IMAGE_SIZE: 2 * 1024 * 1024, // 2MB in bytes

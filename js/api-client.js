@@ -202,8 +202,8 @@ class ApiClient {
         localStorage.removeItem(CONFIG.AUTH.USER_KEY);
         
         // Redirect to login page
-        if (window.location.pathname !== '/pages/auth/login.html') {
-            window.location.href = '/pages/auth/login.html';
+        if (window.location.pathname !== '/pages/login.html') {
+            window.location.href = '/pages/login.html';
         }
     }
 }

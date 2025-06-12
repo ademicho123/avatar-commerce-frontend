@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - AvatarCommerce</title>
     <style>
-        /* Reset and base styles */
+        /* Same styles as before... */
         * {
             margin: 0;
             padding: 0;
@@ -94,26 +94,6 @@
             color: #666;
         }
         
-        .auth-tabs {
-            display: flex;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 20px;
-        }
-        
-        .auth-tab {
-            flex: 1;
-            text-align: center;
-            padding: 15px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: color 0.3s, border-color 0.3s;
-        }
-        
-        .auth-tab.active {
-            color: #5e60ce;
-            border-bottom: 3px solid #5e60ce;
-        }
-        
         .form-group {
             margin-bottom: 20px;
         }
@@ -149,6 +129,22 @@
             outline: none;
         }
         
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #fff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-select:focus {
+            border-color: #5e60ce;
+            box-shadow: 0 0 0 3px rgba(94, 96, 206, 0.2);
+            outline: none;
+        }
+        
         .form-textarea {
             width: 100%;
             padding: 12px 15px;
@@ -171,6 +167,50 @@
             margin-top: 6px;
             font-size: 14px;
             color: #666;
+        }
+        
+        .affiliate-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f8fafc;
+        }
+        
+        .affiliate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .affiliate-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            background-color: #5e60ce;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-small:hover {
+            background-color: #4d4eb9;
+        }
+        
+        .btn-small.remove {
+            background-color: #e53e3e;
+        }
+        
+        .btn-small.remove:hover {
+            background-color: #c53030;
         }
         
         .btn {
@@ -302,7 +342,7 @@
         <div class="container">
             <nav class="navbar">
                 <div class="logo">
-                    <a href="../../index.html">Avatar<span>Commerce</span></a>
+                    <a href="../index.html">Avatar<span>Commerce</span></a>
                 </div>
             </nav>
         </div>
@@ -312,13 +352,8 @@
     <main class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Create Your Account</h1>
-                <p>Get started with AvatarCommerce</p>
-            </div>
-            
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="influencer-tab">Register as Influencer</div>
-                <div class="auth-tab" id="fan-tab">Register as Fan</div>
+                <h1>Create Your Influencer Account</h1>
+                <p>Start building your AI-powered presence</p>
             </div>
             
             <div id="alert" class="alert"></div>
@@ -353,19 +388,20 @@
                     </div>
                 </div>
                 
-                <!-- Influencer-specific fields -->
-                <div id="influencer-fields">
-                    <div class="form-group">
-                        <label for="bio" class="form-label">Bio <span>(Optional)</span></label>
-                        <textarea id="bio" class="form-textarea" placeholder="Tell your fans about yourself..."></textarea>
-                        <span class="form-hint">This will be visible to your fans and helps personalize your AI avatar</span>
+                <div class="form-group">
+                    <label for="bio" class="form-label">Bio <span>(Optional)</span></label>
+                    <textarea id="bio" class="form-textarea" placeholder="Tell your fans about yourself..."></textarea>
+                    <span class="form-hint">This will be visible to your fans and helps personalize your AI avatar</span>
+                </div>
+                
+                <!-- Affiliate Links Section -->
+                <div id="affiliate-links-section">
+                    <h3 style="margin-bottom: 15px; color: #333;">Affiliate Links <span style="font-weight: normal; color: #666;">(Optional)</span></h3>
+                    <div id="affiliate-links-container">
+                        <!-- Affiliate links will be added here dynamically -->
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="affiliate-id" class="form-label">Amazon Affiliate ID <span>(Optional)</span></label>
-                        <input type="text" id="affiliate-id" class="form-input" placeholder="e.g. yourusername-20">
-                        <span class="form-hint">Your Amazon Associates ID to earn commissions on recommended products</span>
-                    </div>
+                    <button type="button" id="add-affiliate" class="btn-small">+ Add Affiliate Link</button>
+                    <span class="form-hint">Add your affiliate links to earn commissions on recommended products</span>
                 </div>
                 
                 <div class="terms-group">
@@ -399,6 +435,17 @@
             // API base URL - update this with your backend URL
             const API_BASE_URL = 'http://localhost:2000/api';
             
+            // Will be populated from the backend
+            let AVAILABLE_PLATFORMS = {};
+            
+            // Available affiliate platforms
+            const AFFILIATE_PLATFORMS = {
+                'rakuten': 'Rakuten',
+                'amazon': 'Amazon Associates',
+                'shareasale': 'ShareASale',
+                'cj_affiliate': 'CJ Affiliate'
+            };
+            
             // DOM elements
             const registerForm = document.getElementById('register-form');
             const usernameInput = document.getElementById('username');
@@ -406,38 +453,146 @@
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirm-password');
             const bioInput = document.getElementById('bio');
-            const affiliateIdInput = document.getElementById('affiliate-id');
             const termsCheckbox = document.getElementById('terms');
+            const affiliateLinksContainer = document.getElementById('affiliate-links-container');
+            const addAffiliateBtn = document.getElementById('add-affiliate');
             
             const usernameError = document.getElementById('username-error');
             const emailError = document.getElementById('email-error');
             const passwordError = document.getElementById('password-error');
             const confirmPasswordError = document.getElementById('confirm-password-error');
             
-            const influencerFields = document.getElementById('influencer-fields');
             const alert = document.getElementById('alert');
-            const influencerTab = document.getElementById('influencer-tab');
-            const fanTab = document.getElementById('fan-tab');
             const spinner = document.getElementById('spinner');
             const submitText = document.getElementById('submit-text');
             
-            // Default user type
-            let userType = 'influencer';
+            let affiliateCounter = 0;
+
+            // Fetch available affiliate platforms from backend
+            async function fetchAvailablePlatforms() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/affiliate/platforms`);
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        AVAILABLE_PLATFORMS = data.data.platforms;
+                        
+                        // Show/hide affiliate section based on availability
+                        const affiliateSection = document.getElementById('affiliate-links-section');
+                        if (Object.keys(AVAILABLE_PLATFORMS).length === 0) {
+                            affiliateSection.style.display = 'none';
+                        } else {
+                            // Update hint text with available platforms
+                            const hint = affiliateSection.querySelector('.form-hint');
+                            const platformNames = Object.values(AVAILABLE_PLATFORMS).map(p => p.name).join(', ');
+                            hint.textContent = `Add your affiliate links for: ${platformNames}`;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Could not fetch available platforms, using defaults');
+                    // Fallback to basic platforms
+                    AVAILABLE_PLATFORMS = {
+                        'rakuten': { name: 'Rakuten', enabled: false },
+                        'amazon': { name: 'Amazon Associates', enabled: false }
+                    };
+                }
+            }
             
-            // Tab switching
-            influencerTab.addEventListener('click', function() {
-                influencerTab.classList.add('active');
-                fanTab.classList.remove('active');
-                userType = 'influencer';
-                influencerFields.style.display = 'block';
-            });
+            // Add affiliate link section
+            function addAffiliateSection() {
+                    // Don't allow adding if no platforms available
+                    if (Object.keys(AVAILABLE_PLATFORMS).length === 0) {
+                        showAlert('No affiliate platforms are currently configured. Contact support for setup.', 'warning');
+                        return;
+                    }
+                    
+                    affiliateCounter++;
+                    const affiliateDiv = document.createElement('div');
+                    affiliateDiv.className = 'affiliate-section';
+                    affiliateDiv.id = `affiliate-${affiliateCounter}`;
+                    
+                    // Generate options for available platforms only
+                    const platformOptions = Object.entries(AVAILABLE_PLATFORMS)
+                        .filter(([key, config]) => config.enabled)
+                        .map(([key, config]) => `<option value="${key}">${config.name}</option>`)
+                        .join('');
+                    
+                    if (!platformOptions) {
+                        showAlert('No affiliate platforms are currently available. Please contact support.', 'warning');
+                        return;
+                    }
+                    
+                    affiliateDiv.innerHTML = `
+                        <div class="affiliate-header">
+                            <h3>Affiliate Link #${affiliateCounter}</h3>
+                            <button type="button" class="btn-small remove" onclick="removeAffiliateSection(${affiliateCounter})">Remove</button>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Platform</label>
+                                <select class="form-select affiliate-platform" data-id="${affiliateCounter}">
+                                    <option value="">Select Platform</option>
+                                    ${platformOptions}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Affiliate ID</label>
+                                <input type="text" class="form-input affiliate-id" data-id="${affiliateCounter}" placeholder="Your affiliate ID">
+                            </div>
+                        </div>
+                    `;
+                    
+                    affiliateLinksContainer.appendChild(affiliateDiv);
+                }
+                
+                // Get affiliate links data (only include enabled platforms)
+                function getAffiliateLinks() {
+                    const affiliateLinks = [];
+                    const platforms = document.querySelectorAll('.affiliate-platform');
+                    const ids = document.querySelectorAll('.affiliate-id');
+                    
+                    platforms.forEach((platform, index) => {
+                        const platformValue = platform.value;
+                        const idValue = ids[index].value.trim();
+                        
+                        // Only include if platform is available and enabled
+                        if (platformValue && idValue && AVAILABLE_PLATFORMS[platformValue]?.enabled) {
+                            affiliateLinks.push({
+                                platform: platformValue,
+                                affiliate_id: idValue
+                            });
+                        }
+                    });
+                    
+                    return affiliateLinks;
+                }
+                
+                // Show alert message
+                function showAlert(message, type) {
+                    const alert = document.getElementById('alert');
+                    alert.textContent = message;
+                    alert.className = 'alert';
+                    alert.classList.add(`alert-${type}`);
+                    alert.style.display = 'block';
+                    window.scrollTo(0, 0);
+                }
+                
+                // Initialize - fetch available platforms first
+                fetchAvailablePlatforms();
+                
+                // Add affiliate button click
+                addAffiliateBtn.addEventListener('click', addAffiliateSection);
+                
+                // Remove affiliate link section
+                window.removeAffiliateSection = function(id) {
+                    const section = document.getElementById(`affiliate-${id}`);
+                    if (section) {
+                        section.remove();
+                    }
+                };
             
-            fanTab.addEventListener('click', function() {
-                fanTab.classList.add('active');
-                influencerTab.classList.remove('active');
-                userType = 'fan';
-                influencerFields.style.display = 'none';
-            });
+            // Add affiliate button click
+            addAffiliateBtn.addEventListener('click', addAffiliateSection);
             
             // Form validation
             function validateForm() {
@@ -502,6 +657,27 @@
                 return isValid;
             }
             
+            // Get affiliate links data
+            function getAffiliateLinks() {
+                const affiliateLinks = [];
+                const platforms = document.querySelectorAll('.affiliate-platform');
+                const ids = document.querySelectorAll('.affiliate-id');
+                
+                platforms.forEach((platform, index) => {
+                    const platformValue = platform.value;
+                    const idValue = ids[index].value.trim();
+                    
+                    if (platformValue && idValue) {
+                        affiliateLinks.push({
+                            platform: platformValue,
+                            affiliate_id: idValue
+                        });
+                    }
+                });
+                
+                return affiliateLinks;
+            }
+            
             // Show alert message
             function showAlert(message, type) {
                 alert.textContent = message;
@@ -538,27 +714,18 @@
                 // Set loading state
                 setLoading(true);
                 
-                // Prepare user data based on user type
+                // Prepare user data
                 const userData = {
                     username: usernameInput.value.trim(),
                     email: emailInput.value.trim(),
-                    password: passwordInput.value
+                    password: passwordInput.value,
+                    bio: bioInput.value.trim() || null,
+                    affiliate_links: getAffiliateLinks()
                 };
                 
-                // Add influencer-specific fields if registering as influencer
-                if (userType === 'influencer') {
-                    userData.bio = bioInput.value.trim() || null;
-                    userData.affiliate_id = affiliateIdInput.value.trim() || null;
-                }
-                
                 try {
-                    // Determine API endpoint based on user type
-                    const endpoint = userType === 'influencer' 
-                        ? '/auth/influencer/register' 
-                        : '/auth/fan/register';
-                    
                     // Send registration request
-                    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    const response = await fetch(`${API_BASE_URL}/register`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

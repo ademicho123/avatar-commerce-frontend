@@ -48,7 +48,7 @@ const UTILS = {
         logout: () => {
             localStorage.removeItem(CONFIG.AUTH.TOKEN_KEY);
             localStorage.removeItem(CONFIG.AUTH.USER_KEY);
-            window.location.href = '/pages/auth/login.html';
+            window.location.href = '/pages/login.html';
         },
         
         /**
@@ -56,7 +56,7 @@ const UTILS = {
          */
         requireAuth: () => {
             if (!UTILS.auth.isLoggedIn()) {
-                window.location.href = '/pages/auth/login.html';
+                window.location.href = '/pages/login.html';
             }
         },
         
@@ -65,7 +65,7 @@ const UTILS = {
          */
         requireInfluencer: () => {
             if (!UTILS.auth.isLoggedIn() || !UTILS.auth.isInfluencer()) {
-                window.location.href = '/pages/auth/login.html';
+                window.location.href = '/pages/login.html';
             }
         },
         
@@ -74,7 +74,7 @@ const UTILS = {
          */
         requireFan: () => {
             if (!UTILS.auth.isLoggedIn() || !UTILS.auth.isFan()) {
-                window.location.href = '/pages/auth/login.html';
+                window.location.href = '/pages/login.html';
             }
         }
     },

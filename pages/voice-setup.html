@@ -702,7 +702,7 @@
         <div class="header">
             <h1 class="page-title">Voice Setup</h1>
             <div class="header-actions">
-                <a href="../fan/chat.html" target="_blank" class="btn btn-secondary">
+                <a href="#" id="preview-chat-link" target="_blank" class="btn btn-secondary">
                     <i class="fas fa-external-link-alt"></i> Preview Chat
                 </a>
                 <a href="dashboard.html" class="btn btn-secondary">
@@ -849,9 +849,9 @@
     </main>
 
     <!-- Load shared scripts -->
-    <script src="../../js/config.js"></script>
-    <script src="../../js/utils.js"></script>
-    <script src="../../js/api-client.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/api-client.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -893,6 +893,13 @@
             if (user) {
                 userName.textContent = user.username;
                 userAvatar.textContent = UTILS.ui.getInitials(user.username);
+            }
+
+            // Set preview chat link
+            const previewChatLink = document.getElementById('preview-chat-link');
+            if (previewChatLink && user) {
+                const chatLink = `${window.location.origin}/pages/chat.html?username=${user.username}`;
+                previewChatLink.href = chatLink;
             }
             
             // Logout button

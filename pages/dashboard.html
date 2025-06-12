@@ -609,6 +609,170 @@
                 margin-left: 70px;
             }
         }
+        /* Embed Configuration Styles */
+        .embed-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .embed-config-panel,
+        .embed-code-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .config-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .config-group select,
+        .config-group input,
+        .config-group textarea {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .config-group select:focus,
+        .config-group input:focus,
+        .config-group textarea:focus {
+            border-color: #5e60ce;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(94, 96, 206, 0.2);
+        }
+
+        .checkbox-label {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 0 !important;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+
+        .embed-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .code-container {
+            position: relative;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .code-container pre {
+            padding: 20px;
+            margin: 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-container button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #5e60ce;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .embed-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .embed-analytics {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #5e60ce;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .embed-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .embed-actions {
+                flex-direction: column;
+            }
+            
+            .embed-links {
+                flex-direction: column;
+            }
+        }
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -675,7 +839,7 @@
         <div class="header">
             <h1 class="page-title">Dashboard</h1>
             <div class="header-actions">
-                <a href="../fan/chat.html" target="_blank" class="btn btn-secondary">
+                <a href="#" id="preview-chat-link" target="_blank" class="btn btn-secondary">
                     <i class="fas fa-external-link-alt"></i> Preview Chat
                 </a>
                 <a href="avatar-setup.html" class="btn">
@@ -853,68 +1017,225 @@
                 </div>
             </div>
         </div>
+
+        <!-- Embed Configuration Section -->
+        <div class="dashboard-section" id="embed-section">
+            <div class="section-header">
+                <h2>Chatbot Embed</h2>
+                <p>Generate embed code to add your chatbot to any website</p>
+            </div>
+            
+            <div class="embed-container">
+                <!-- Configuration Panel -->
+                <div class="embed-config-panel">
+                    <h3>Customize Your Widget</h3>
+                    
+                    <div class="config-grid">
+                        <div class="config-group">
+                            <label for="embed-width">Width</label>
+                            <select id="embed-width">
+                                <option value="350px">Small (350px)</option>
+                                <option value="400px" selected>Medium (400px)</option>
+                                <option value="500px">Large (500px)</option>
+                                <option value="100%">Full Width</option>
+                            </select>
+                        </div>
+                        
+                        <div class="config-group">
+                            <label for="embed-height">Height</label>
+                            <select id="embed-height">
+                                <option value="500px">Compact (500px)</option>
+                                <option value="600px" selected>Standard (600px)</option>
+                                <option value="700px">Tall (700px)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="config-group">
+                            <label for="embed-position">Position</label>
+                            <select id="embed-position">
+                                <option value="bottom-right" selected>Bottom Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="top-right">Top Right</option>
+                                <option value="top-left">Top Left</option>
+                            </select>
+                        </div>
+                        
+                        <div class="config-group">
+                            <label for="embed-theme">Theme</label>
+                            <select id="embed-theme">
+                                <option value="default" selected>Default</option>
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                            </select>
+                        </div>
+                        
+                        <div class="config-group full-width">
+                            <label for="embed-trigger-text">Trigger Button Text</label>
+                            <input type="text" id="embed-trigger-text" value="Chat with me!" maxlength="50">
+                        </div>
+                        
+                        <div class="config-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="embed-auto-open">
+                                <span class="checkmark"></span>
+                                Auto-open after 3 seconds
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="embed-custom-css">Custom CSS (Advanced)</label>
+                        <textarea id="embed-custom-css" placeholder="Add custom CSS to further customize your widget..." rows="4"></textarea>
+                        <span class="form-hint">Use CSS selectors like .ac-widget, .ac-chat-container, etc.</span>
+                    </div>
+                    
+                    <div class="embed-actions">
+                        <button id="generate-embed" class="btn btn-primary">Generate Embed Code</button>
+                        <button id="preview-embed" class="btn btn-secondary">Preview</button>
+                    </div>
+                </div>
+                
+                <!-- Generated Code Panel -->
+                <div class="embed-code-panel" id="embed-code-panel" style="display: none;">
+                    <h3>Your Embed Code</h3>
+                    <p>Copy and paste this code into your website's HTML:</p>
+                    
+                    <div class="code-container">
+                        <pre id="embed-code-display"></pre>
+                        <button id="copy-embed-code" class="btn btn-small">Copy Code</button>
+                    </div>
+                    
+                    <div class="embed-links">
+                        <a href="#" id="preview-link" target="_blank" class="btn btn-secondary">View Preview</a>
+                        <a href="#" id="direct-chat-link" target="_blank" class="btn btn-outline">Direct Chat Link</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Embed Analytics -->
+            <div class="embed-analytics" id="embed-analytics" style="display: none;">
+                <h3>Embed Analytics</h3>
+                <div class="analytics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="total-embed-chats">-</div>
+                        <div class="metric-label">Total Embed Chats</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="embed-unique-visitors">-</div>
+                        <div class="metric-label">Unique Visitors</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="avg-daily-chats">-</div>
+                        <div class="metric-label">Avg Daily Chats</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // API base URL
-            const API_BASE_URL = 'http://localhost:2000/api';
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get user data
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+        //const chatLinkInput = document.getElementById('chat-link');
+        const previewChatLink = document.getElementById('preview-chat-link');
+        
+        if (chatLinkInput && user) {
+            // Use the correct path structure with username parameter
+            const chatLink = `${window.location.origin}/pages/chat.html?username=${user.username}`;
+            chatLinkInput.value = chatLink;
             
-            // Check if user is logged in
-            const token = localStorage.getItem('token');
-            const userStr = localStorage.getItem('user');
-            
-            if (!token || !userStr) {
-                // Redirect to login if not logged in
-                window.location.href = '../auth/login.html';
-                return;
+            // Also update the preview chat link in header
+            if (previewChatLink) {
+                previewChatLink.href = chatLink;
             }
             
-            // Parse user data
-            const user = JSON.parse(userStr);
-            
-            // Check if user is an influencer
-            if (user.userType !== 'influencer') {
-                window.location.href = '../auth/login.html';
-                return;
-            }
-            
-            // Update user display
-            document.getElementById('user-name').textContent = user.username;
-            if (user.username) {
-                const initials = user.username.split(' ')
-                    .map(name => name[0])
-                    .join('')
-                    .toUpperCase()
-                    .substring(0, 2);
-                document.getElementById('user-avatar').textContent = initials;
-            }
-            
-            // Set chat link
-            const chatLink = `${window.location.origin}/pages/fan/chat.html?username=${user.username}`;
-            document.getElementById('chat-link').value = chatLink;
-            
-            // Copy link button
-            document.getElementById('copy-link-btn').addEventListener('click', function() {
+            console.log('Chat link set to:', chatLink);
+        }
+        
+        if (!token || !userStr) {
+            window.location.href = '../login.html';
+            return;
+        }
+        
+        const user = JSON.parse(userStr);
+        
+        if (user.userType !== 'influencer') {
+            window.location.href = '../login.html';
+            return;
+        }
+        
+        // Update user display
+        document.getElementById('user-name').textContent = user.username;
+        if (user.username) {
+            const initials = user.username.split(' ')
+                .map(name => name[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+            document.getElementById('user-avatar').textContent = initials;
+        }
+        
+        // Fix the chat link - this was the problem!
+        const chatLinkInput = document.getElementById('chat-link');
+        if (chatLinkInput) {
+            // Use the correct path structure
+            const chatLink = `${window.location.origin}/pages/chat.html?username=${user.username}`;
+            chatLinkInput.value = chatLink;
+            console.log('Chat link set to:', chatLink);
+        }
+        
+        // Update all "Preview Chat" links in the header
+        const previewChatLinks = document.querySelectorAll('a[href*="chat.html"]');
+        previewChatLinks.forEach(link => {
+            link.href = `chat.html?username=${user.username}`;
+            console.log('Preview chat link updated to:', link.href);
+        });
+        
+        // Copy link button
+        const copyLinkBtn = document.getElementById('copy-link-btn');
+        if (copyLinkBtn) {
+            copyLinkBtn.addEventListener('click', function() {
                 const linkInput = document.getElementById('chat-link');
-                linkInput.select();
-                document.execCommand('copy');
-                
-                this.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                setTimeout(() => {
-                    this.innerHTML = '<i class="fas fa-copy"></i> Copy';
-                }, 2000);
+                if (linkInput) {
+                    linkInput.select();
+                    linkInput.setSelectionRange(0, 99999); // For mobile devices
+                    
+                    try {
+                        document.execCommand('copy');
+                        this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Copy failed:', err);
+                        // Fallback for modern browsers
+                        navigator.clipboard.writeText(linkInput.value).then(() => {
+                            this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            setTimeout(() => {
+                                this.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                            }, 2000);
+                        }).catch(() => {
+                            alert('Please copy the link manually: ' + linkInput.value);
+                        });
+                    }
+                }
             });
-            
-            // Logout button
-            document.getElementById('logout-btn').addEventListener('click', function() {
+        }
+        
+        // Logout button
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = '../auth/login.html';
+                window.location.href = '../login.html';
             });
-            
-            // Load dashboard data
-            loadDashboardData();
+        }
+        
+        // Load dashboard data
+        loadDashboardData();
             
             async function loadDashboardData() {
                 try {
@@ -1105,6 +1426,182 @@
                     .replace(/"/g, "&quot;")
                     .replace(/'/g, "&#039;");
             }
+        });
+    </script>
+    <script>
+        // Embed Configuration JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            const API_BASE_URL = 'http://localhost:2000/api';
+            
+            // DOM elements
+            const embedWidth = document.getElementById('embed-width');
+            const embedHeight = document.getElementById('embed-height');
+            const embedPosition = document.getElementById('embed-position');
+            const embedTheme = document.getElementById('embed-theme');
+            const embedTriggerText = document.getElementById('embed-trigger-text');
+            const embedAutoOpen = document.getElementById('embed-auto-open');
+            const embedCustomCSS = document.getElementById('embed-custom-css');
+            const generateBtn = document.getElementById('generate-embed');
+            const previewBtn = document.getElementById('preview-embed');
+            const embedCodePanel = document.getElementById('embed-code-panel');
+            const embedCodeDisplay = document.getElementById('embed-code-display');
+            const copyBtn = document.getElementById('copy-embed-code');
+            const previewLink = document.getElementById('preview-link');
+            const directChatLink = document.getElementById('direct-chat-link');
+            const embedAnalytics = document.getElementById('embed-analytics');
+            
+            // Load current configuration
+            async function loadEmbedConfig() {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`${API_BASE_URL}/embed/config`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        const config = data.data.config;
+                        
+                        // Populate form with current config
+                        embedWidth.value = config.width || '400px';
+                        embedHeight.value = config.height || '600px';
+                        embedPosition.value = config.position || 'bottom-right';
+                        embedTheme.value = config.theme || 'default';
+                        embedTriggerText.value = config.trigger_text || 'Chat with me!';
+                        embedAutoOpen.checked = config.auto_open || false;
+                        embedCustomCSS.value = config.custom_css || '';
+                        
+                        // Set preview link
+                        if (data.data.preview_url) {
+                            previewLink.href = data.data.preview_url;
+                        }
+                        
+                        // Show analytics if user has avatar
+                        if (data.data.has_avatar) {
+                            loadEmbedAnalytics();
+                            embedAnalytics.style.display = 'block';
+                        }
+                        
+                        // Set direct chat link
+                        const user = JSON.parse(localStorage.getItem('user'));
+                        directChatLink.href = `/chat/${user.username}`;
+                    }
+                } catch (error) {
+                    console.error('Error loading embed config:', error);
+                }
+            }
+            
+            // Generate embed code
+            async function generateEmbedCode() {
+                try {
+                    const token = localStorage.getItem('token');
+                    const config = {
+                        width: embedWidth.value,
+                        height: embedHeight.value,
+                        position: embedPosition.value,
+                        theme: embedTheme.value,
+                        trigger_text: embedTriggerText.value,
+                        auto_open: embedAutoOpen.checked,
+                        custom_css: embedCustomCSS.value
+                    };
+                    
+                    const response = await fetch(`${API_BASE_URL}/embed/generate`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(config)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        // Display embed code
+                        embedCodeDisplay.textContent = data.data.embed_code;
+                        embedCodePanel.style.display = 'block';
+                        
+                        // Update preview link
+                        previewLink.href = data.data.preview_url;
+                        
+                        // Show success message
+                        showAlert('Embed code generated successfully!', 'success');
+                    } else {
+                        showAlert(data.message || 'Failed to generate embed code', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error generating embed code:', error);
+                    showAlert('Error generating embed code', 'danger');
+                }
+            }
+            
+            // Copy embed code to clipboard
+            function copyEmbedCode() {
+                const code = embedCodeDisplay.textContent;
+                
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyBtn.textContent = 'Copy Code';
+                        }, 2000);
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = code;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy Code';
+                    }, 2000);
+                }
+            }
+            
+            // Load embed analytics
+            async function loadEmbedAnalytics() {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`${API_BASE_URL}/analytics/embed?days=30`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        const analytics = data.data;
+                        
+                        document.getElementById('total-embed-chats').textContent = analytics.total_embed_chats;
+                        document.getElementById('embed-unique-visitors').textContent = analytics.unique_visitors;
+                        document.getElementById('avg-daily-chats').textContent = analytics.avg_daily_chats.toFixed(1);
+                    }
+                } catch (error) {
+                    console.error('Error loading embed analytics:', error);
+                }
+            }
+            
+            // Event listeners
+            generateBtn.addEventListener('click', generateEmbedCode);
+            previewBtn.addEventListener('click', () => {
+                if (previewLink.href !== '#') {
+                    window.open(previewLink.href, '_blank');
+                } else {
+                    showAlert('Please generate embed code first', 'warning');
+                }
+            });
+            copyBtn.addEventListener('click', copyEmbedCode);
+            
+            // Initialize
+            loadEmbedConfig();
         });
     </script>
 </body>
