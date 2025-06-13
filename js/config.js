@@ -4,9 +4,11 @@
  */
 
 const CONFIG = {
-    // API Configuration
+    // API Configuration - UPDATE THIS WITH YOUR EC2 PUBLIC IP/DOMAIN
     API: {
-        BASE_URL: 'http://localhost:2000/api', // Change to your production API URL
+        BASE_URL: 'http://44.202.144.180:8000/api', // Replace with your actual EC2 public IP
+        // Alternative: Use domain name if you have one
+        // BASE_URL: 'https://your-domain.com/api',
         TIMEOUT: 30000, // 30 seconds request timeout
         RETRY_ATTEMPTS: 2 // Number of retry attempts for failed requests
     },
@@ -20,11 +22,11 @@ const CONFIG = {
     
     ROUTES: {
         LOGIN: 'login.html',
-        REGISTER: 'register.html',
+        REGISTER: 'register.html', 
         DASHBOARD: 'dashboard.html',
         HOME: '../index.html'
     },
-    
+
     // File Upload
     UPLOAD: {
         MAX_IMAGE_SIZE: 2 * 1024 * 1024, // 2MB in bytes
