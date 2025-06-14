@@ -4,11 +4,9 @@
  */
 
 const CONFIG = {
-    // API Configuration - UPDATE THIS WITH YOUR EC2 PUBLIC IP/DOMAIN
+    // API Configuration
     API: {
-        BASE_URL: 'http://44.202.144.180:8000/api', // Replace with your actual EC2 public IP
-        // Alternative: Use domain name if you have one
-        // BASE_URL: 'https://your-domain.com/api',
+        BASE_URL: 'http://44.202.144.180:8000/api', // Your EC2 Flask server
         TIMEOUT: 30000, // 30 seconds request timeout
         RETRY_ATTEMPTS: 2 // Number of retry attempts for failed requests
     },
@@ -22,7 +20,7 @@ const CONFIG = {
     
     ROUTES: {
         LOGIN: 'login.html',
-        REGISTER: 'register.html', 
+        REGISTER: 'register.html',
         DASHBOARD: 'dashboard.html',
         HOME: '../index.html'
     },
@@ -69,8 +67,21 @@ const CONFIG = {
         VOICE_ENABLED: true,
         PRODUCT_RECOMMENDATIONS: true,
         ANALYTICS_DASHBOARD: true
+    },
+    
+    // S3 Website Info (for debugging)
+    FRONTEND: {
+        S3_ORIGIN: 'http://avatarcommerce.s3-website-us-east-1.amazonaws.com',
+        CURRENT_ORIGIN: window.location.origin // Will be set at runtime
     }
 };
+
+// Log configuration on load for debugging
+console.log('🔧 AvatarCommerce Config Loaded');
+console.log('🔧 API Base URL:', CONFIG.API.BASE_URL);
+console.log('🔧 Current Origin:', window.location.origin);
+console.log('🔧 Expected S3 Origin:', CONFIG.FRONTEND.S3_ORIGIN);
+console.log('🔧 Origins Match:', window.location.origin === CONFIG.FRONTEND.S3_ORIGIN);
 
 // Freeze the config object to prevent modifications
 Object.freeze(CONFIG);

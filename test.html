@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test - Root Level</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        .status { font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 CORS Test - Root Level</h1>
+        
+        <div class="info">
+            <h3>Test Environment:</h3>
+            <div><strong>Current URL:</strong> <span id="currentUrl"></span></div>
+            <div><strong>Origin:</strong> <span id="origin"></span></div>
+            <div><strong>Target API:</strong> http://44.202.144.180:8000/api/test-cors</div>
+            <div><strong>Expected Origin:</strong> http://avatarcommerce.s3-website-us-east-1.amazonaws.com</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🚀 Test 1: Simple GET Request</h3>
+            <button onclick="testGet()">Run GET Test</button>
+            <div id="getResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🚀 Test 2: POST Request (Preflight)</h3>
+            <button onclick="testPost()">Run POST Test</button>
+            <div id="postResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🚀 Test 3: Actual Login API</h3>
+            <button onclick="testLogin()">Test Login Endpoint</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Request Log</h3>
+            <div id="requestLog" style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize page info
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('origin').textContent = window.location.origin;
+        
+        // Logging function
+        function logRequest(message) {
+            const logDiv = document.getElementById('requestLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        // Initialize
+        logRequest(`🌐 Page loaded from: ${window.location.origin}`);
+        logRequest(`🎯 Target API: http://44.202.144.180:8000/api/test-cors`);
+        
+        async function testGet() {
+            const resultDiv = document.getElementById('getResult');
+            resultDiv.innerHTML = '<div class="status">🔄 Testing GET request...</div>';
+            logRequest('🚀 Starting GET test');
+            
+            try {
+                const startTime = Date.now();
+                
+                const response = await fetch('http://44.202.144.180:8000/api/test-cors', {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const duration = Date.now() - startTime;
+                logRequest(`✅ GET response received in ${duration}ms: ${response.status}`);
+                
+                const data = await response.json();
+                logRequest(`✅ GET data parsed successfully`);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ GET Test Successful!</h4>
+                        <div><strong>Status:</strong> ${response.status} ${response.statusText}</div>
+                        <div><strong>Duration:</strong> ${duration}ms</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                
+            } catch (error) {
+                logRequest(`❌ GET test failed: ${error.message}`);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ GET Test Failed</h4>
+                        <div><strong>Error:</strong> ${error.message}</div>
+                        <div><strong>Type:</strong> ${error.name}</div>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testPost() {
+            const resultDiv = document.getElementById('postResult');
+            resultDiv.innerHTML = '<div class="status">🔄 Testing POST request...</div>';
+            logRequest('🚀 Starting POST test (this will trigger preflight)');
+            
+            try {
+                const startTime = Date.now();
+                
+                const response = await fetch('http://44.202.144.180:8000/api/test-cors', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        test: 'POST CORS test',
+                        origin: window.location.origin,
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent
+                    })
+                });
+                
+                const duration = Date.now() - startTime;
+                logRequest(`✅ POST response received in ${duration}ms: ${response.status}`);
+                
+                const data = await response.json();
+                logRequest(`✅ POST data parsed successfully`);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ POST Test Successful!</h4>
+                        <div><strong>Status:</strong> ${response.status} ${response.statusText}</div>
+                        <div><strong>Duration:</strong> ${duration}ms</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                
+            } catch (error) {
+                logRequest(`❌ POST test failed: ${error.message}`);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ POST Test Failed</h4>
+                        <div><strong>Error:</strong> ${error.message}</div>
+                        <div><strong>Type:</strong> ${error.name}</div>
+                        <div><strong>Stack:</strong> ${error.stack || 'Not available'}</div>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.innerHTML = '<div class="status">🔄 Testing login endpoint...</div>';
+            logRequest('🚀 Starting login endpoint test');
+            
+            try {
+                const startTime = Date.now();
+                
+                const response = await fetch('http://44.202.144.180:8000/api/login', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'testuser',
+                        password: 'testpass'
+                    })
+                });
+                
+                const duration = Date.now() - startTime;
+                logRequest(`✅ Login response received in ${duration}ms: ${response.status}`);
+                
+                const data = await response.json();
+                logRequest(`✅ Login data parsed: ${data.status}`);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ Login Endpoint Accessible!</h4>
+                        <div><strong>Status:</strong> ${response.status} ${response.statusText}</div>
+                        <div><strong>Duration:</strong> ${duration}ms</div>
+                        <div><strong>Note:</strong> ${data.status === 'error' ? 'Login failed as expected (wrong credentials), but CORS is working!' : 'Unexpected success'}</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                
+            } catch (error) {
+                logRequest(`❌ Login test failed: ${error.message}`);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Login Test Failed</h4>
+                        <div><strong>Error:</strong> ${error.message}</div>
+                        <div><strong>Type:</strong> ${error.name}</div>
+                        <div>This indicates a CORS issue preventing access to the login endpoint.</div>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
